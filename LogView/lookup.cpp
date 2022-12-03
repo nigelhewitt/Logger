@@ -41,7 +41,6 @@ static bool isin(char c, const char* list){ return strchr(list, c)!=nullptr; }
 
 static void strip_trailing(char* p, const char* strip)
 {
-//	if(*p==0 || isin(*p, strip)) return;	// saves a lot of checking
 	while(*p) ++p;							// move to the end of line
 	--p;									// back into text
 	while(isin(*p, strip)) *p--=0;
