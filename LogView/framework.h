@@ -18,6 +18,7 @@
 #include <direct.h>
 #include <commctrl.h>
 #include <urlmon.h>
+#include <algorithm>
 
 #pragma comment(lib, "Comctl32.lib")
 #pragma comment(lib, "urlmon.lib")

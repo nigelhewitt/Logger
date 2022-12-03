@@ -6,9 +6,9 @@
 
 // Global Variables:
 HINSTANCE hInstance{};				// current instance
-HWND hView{};
-adif logbook;
-DXCC* dxcc = nullptr;
+HWND  hView{};
+ADIF* logbook{};
+DXCC* dxcc{};
 
 // Message handler for about box.
 INT_PTR CALLBACK About(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
@@ -125,7 +125,7 @@ void InsertListViewItems(HWND hwndListView)
 	ListView_DeleteAllItems(hwndListView);
 
 	// set the number of items in the list
-	ListView_SetItemCount(hwndListView, logbook.entries.size());
+	ListView_SetItemCount(hwndListView, logbook->entries.size());
 }
 void InitListView(HWND hwndListView)
 {
@@ -137,9 +137,9 @@ void InitListView(HWND hwndListView)
 	LV_COLUMN lvColumn;
 	lvColumn.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
 	lvColumn.fmt = LVCFMT_LEFT;
-	for(int i = 0; i < logbook.titles.size(); ++i){
-		lvColumn.cx = (logbook.titles[i].maxW + 3 + (i==0?3:0))* CHAR_WIDTH;
-		lvColumn.pszText = (LPSTR)logbook.titles[i].col;
+	for(int i = 0; i < logbook->titles.size(); ++i){
+		lvColumn.cx = (logbook->titles[i].maxW + 3 + (i==0?3:0))* CHAR_WIDTH;
+		lvColumn.pszText = (LPSTR)logbook->titles[i].col;
 		ListView_InsertColumn(hwndListView, i, &lvColumn);
 	}
 	InsertListViewItems(hwndListView);
@@ -151,57 +151,64 @@ LRESULT ListViewNotify(HWND hWnd, LPARAM lParam)
 
 	switch(lpnmh->code){
 	case LVN_GETDISPINFO:
-	{
-		LV_DISPINFO *lpdi = (LV_DISPINFO *)lParam;
+		{
+			LV_DISPINFO *lpdi = (LV_DISPINFO *)lParam;
 
-		if(lpdi->item.iSubItem){
-			if(lpdi->item.mask & LVIF_TEXT){
-				const char* col = logbook.titles[lpdi->item.iSubItem].col;		// column name
-				entry* e = &logbook.entries[lpdi->item.iItem];					// find entry for row
-				item*  i = e->find(col);										// find item for column
-				if(i)
+			if(lpdi->item.iSubItem){
+				if(lpdi->item.mask & LVIF_TEXT){
+					const char* col = logbook->titles[lpdi->item.iSubItem].col;		// column name
+					ENTRY* e = &logbook->entries[lpdi->item.iItem];					// find entry for row
+					ITEM*  i = e->find(col);										// find item for column
+					if(i)
+						strcpy_s(lpdi->item.pszText, lpdi->item.cchTextMax, i->value);
+				}
+			}
+			else{
+				if(lpdi->item.mask & LVIF_TEXT){
+					const char* col = logbook->titles[0].col;						// first column name
+					ENTRY* e = &logbook->entries[lpdi->item.iItem];					// find entry for row
+					ITEM*  i = e->find(col);										// find item for column
 					strcpy_s(lpdi->item.pszText, lpdi->item.cchTextMax, i->value);
-			}
-		}
-		else{
-			if(lpdi->item.mask & LVIF_TEXT){
-				const char* col = logbook.titles[0].col;						// first column name
-				entry* e = &logbook.entries[lpdi->item.iItem];					// find entry for row
-				item*  i = e->find(col);										// find item for column
-				strcpy_s(lpdi->item.pszText, lpdi->item.cchTextMax, i->value);
-			}
+				}
 
-			if(lpdi->item.mask & LVIF_IMAGE)
-				lpdi->item.iImage = 0;
+				if(lpdi->item.mask & LVIF_IMAGE)
+					lpdi->item.iImage = 0;
+			}
+			return 0;
 		}
-	}
-	return 0;
 
 	case LVN_ODCACHEHINT:
-	{
-		LPNMLVCACHEHINT	lpCacheHint = (LPNMLVCACHEHINT)lParam;
-	/*
-		This sample doesn't use this notification, but this is sent when the 
-		ListView is about to ask for a range of items. On this notification, 
-		you should load the specified items into your local cache. It is still 
-		possible to get an LVN_GETDISPINFO for an item that has not been cached, 
-		therefore, your application must take into account the chance of this 
-		occurring.
-	*/
-	}
-	return 0;
+		{
+			LPNMLVCACHEHINT	lpCacheHint = (LPNMLVCACHEHINT)lParam;
+			/*
+				This sample doesn't use this notification, but this is sent when the 
+				ListView is about to ask for a range of items. On this notification, 
+				you should load the specified items into your local cache. It is still 
+				possible to get an LVN_GETDISPINFO for an item that has not been cached, 
+				therefore, your application must take into account the chance of this 
+				occurring.
+			*/
+			return 0;
+		}
 
 	case LVN_ODFINDITEM:
-	{
-		LPNMLVFINDITEM lpFindItem = (LPNMLVFINDITEM)lParam;
-		/*
-			This sample doesn't use this notification, but this is sent when the 
-			ListView needs a particular item. Return -1 if the item is not found.
-		*/
-	}
-	return 0;
-	}
+		{
+			LPNMLVFINDITEM lpFindItem = (LPNMLVFINDITEM)lParam;
+			/*
+				This sample doesn't use this notification, but this is sent when the 
+				ListView needs a particular item. Return -1 if the item is not found.
+			*/
+			return 0;
+		}
 
+	case LVN_COLUMNCLICK:
+		{
+			LPNMLISTVIEW pnmv = (LPNMLISTVIEW)lParam;	// click column header
+			logbook->sort(logbook->titles[pnmv->iSubItem].col, false);
+			InsertListViewItems(hView);
+			return 0;
+		}
+	}
 	return 0;
 }
 void ErrorHandler(DWORD err, char* temp, int cb)
@@ -296,7 +303,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 //		char temp[260];
 //		_getcwd(temp, sizeof(temp));
 		dxcc = new DXCC;
-		logbook.read("..\\wsjtx_log.adi");
+		logbook = new ADIF;
+		logbook->read("..\\wsjtx_log.adi");
 
 		hView = CreateListView(hInstance, hWnd);
 		InitListView(hView);

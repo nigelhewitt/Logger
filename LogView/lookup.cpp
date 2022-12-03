@@ -123,8 +123,6 @@ void DXCC::processPrefix(RAWLOOKUP* raw)
 	// now deal with the ranges
 	// the problem here is that there aren't any stated rules and you just have to magically infer stuff
 	// eg: XA4-XI4 H6-7  XA-XI PP0-PY0F
-	if(strncmp(raw->prefix, "UA-", 3)==0)
-		trap();
 	char* p = strchr(raw->prefix, '-');					// this may be only the first dash...
 	if(p!=nullptr){										// we have a dash meaning a sequence
 		int n = (int)(p-raw->prefix);					// number of characters before the dash
@@ -217,7 +215,7 @@ skip:
 	
 	fclose(fh);
 
-
+#ifdef _DEBUG
 	// pump out a test version
 	FILE* fd{};
 	_unlink("LookupDump.edc");
@@ -232,6 +230,7 @@ skip:
 	}
 	else
 		ErrorHandler();
+#endif
 }
 
 LOOKUP* DXCC::lookup(const char* call)
