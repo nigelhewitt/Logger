@@ -168,7 +168,8 @@ LRESULT ListViewNotify(HWND hWnd, LPARAM lParam)
 					const char* col = logbook->titles[0].col;						// first column name
 					ENTRY* e = &logbook->entries[lpdi->item.iItem];					// find entry for row
 					ITEM*  i = e->find(col);										// find item for column
-					strcpy_s(lpdi->item.pszText, lpdi->item.cchTextMax, i->value);
+					if(i)
+						strcpy_s(lpdi->item.pszText, lpdi->item.cchTextMax, i->value);
 				}
 
 				if(lpdi->item.mask & LVIF_IMAGE)
@@ -304,7 +305,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 //		_getcwd(temp, sizeof(temp));
 		dxcc = new DXCC;
 		logbook = new ADIF;
-		logbook->read("..\\wsjtx_log.adi");
+		logbook->read("C:\\Users\\nigel\\AppData\\Local\\WSJT-X\\wsjtx_log.adi");
 
 		hView = CreateListView(hInstance, hWnd);
 		InitListView(hView);

@@ -251,7 +251,7 @@ bool ADIF::read(char* &in)
 			int n = i.value!=nullptr ? (int)strlen(i.value) : 0;	// length of the value
 			// first check for new column names
 			for(COL& c : titles)				// check the list of titles (use & so we get the real thing not a copy)
-				if(strcmp(i.name, c.col)==0){	// we have seen this one before?
+				if(_stricmp(i.name, c.col)==0){	// we have seen this one before?
 					if(c.maxW<n) c.maxW=n;		// yes, so check its width
 					goto found;					// already exists
 				}

@@ -102,8 +102,15 @@ void DXCC::processPrefix(RAWLOOKUP* raw)
 		return;
 	}
 	if(strcmp(raw->prefix, "7")==0)								// Agalega & St. Brandon Is.
-		strcpy_s(raw->prefix, sizeof(RAWLOOKUP::prefix),"3B7");	
-
+		strcpy_s(raw->prefix, sizeof(RAWLOOKUP::prefix), "3B7");
+	if(strcmp(raw->prefix, "UA-UI1-7,RA-RZ")==0)
+		strcpy_s(raw->prefix, sizeof(RAWLOOKUP::prefix), "UA-UI1-7,RA-RZ1-7,R1-7");
+	if(strcmp(raw->prefix, "UA-UI8-0,RA-RZ")==0)
+		strcpy_s(raw->prefix, sizeof(RAWLOOKUP::prefix), "UA-UI8-0,RA-RZ8-0,R8-0");
+#if true
+	if(strcmp(raw->prefix, "I")==0)
+		trap();
+#endif
 	// deal with groups
 	if(strchr(raw->prefix, ',')!=nullptr){		// do we have commas?
 		char* q{};
@@ -150,14 +157,23 @@ void DXCC::processPrefix(RAWLOOKUP* raw)
 error:		MessageBox(nullptr, raw->prefix, "ARGH!!!", MB_OK);
 		}
 		int safety{};
-		while(strcmp(from, to)!=0){
+		// I have a problem with Russian Asiatic call signs using the range 8-0 which I assume means 8,9,0
+		// I will just have to frig it out with a special case for n-0
+		bool frig{};
+		if(to[diff]=='0')
+			frig = true;
+		if(frig) to[diff] = ':';		// aka '9'+1
+
+		while(strcmp(from, to)<=0){										// normal inclusive operation
 			RAWLOOKUP *r1 = new RAWLOOKUP(raw);
 			strcpy_s(r1->prefix, sizeof(RAWLOOKUP::prefix), before);
-			strcat_s(r1->prefix, sizeof(RAWLOOKUP::prefix), from);
+			char frigC = from[diff];									// frig starts
+			if(frig && from[diff]==':') from[diff] = '0';				//
+			strcat_s(r1->prefix, sizeof(RAWLOOKUP::prefix), from);		//
+			from[diff] = frigC;											// frig ends
 			strcat_s(r1->prefix, sizeof(RAWLOOKUP::prefix), after);
 			processPrefix(r1);					// processes and deletes r1
 			from[diff]++;
-			if(from[diff]==':') from[diff]='0';	// well I thing that's what 8-0 means
 			if(safety++>30) goto error;
 		}
 		return;
@@ -239,10 +255,10 @@ LOOKUP* DXCC::lookup(const char* call)
 	strcpy_s(temp, sizeof(temp), call);			// copy it so we can chop it up
 
 	// we want the longest match
-	for(int i=(int)strlen(call)-1; i>0; --i){	// index of last char
+	for(int i=(int)strlen(call); i>0; --i){	// index of terminating null
 		if(lookupTable.contains(temp))
 			return &lookupTable[temp];
-		temp[i] = 0;
+		temp[i-1] = 0;
 	}
 	return nullptr;
 }

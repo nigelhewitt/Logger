@@ -91,7 +91,7 @@ struct LOOKUP {
 	const char* code{};
 };
 struct RAWLOOKUP {
-	char prefix[20]{};
+	char prefix[30]{};
 	char entity[35]{};
 	char continent[6]{};
 	char itu[6]{};
