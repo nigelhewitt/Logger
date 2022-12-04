@@ -83,7 +83,6 @@ public:
 //-------------------------------------------------------------------------------------------------
 
 struct LOOKUP {
-	const char* prefix{};
 	const char* entity{};
 	const char* continent{};
 	const char* itu{};

@@ -138,8 +138,8 @@
     <ResourceCompile Include="LogView.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Station.ico" />
     <Image Include="LogView.ico" />
-    <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LogView.cpp" />

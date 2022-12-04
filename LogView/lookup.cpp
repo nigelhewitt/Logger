@@ -13,8 +13,10 @@
 const char* szURL		 = "http://www.arrl.org/files/file/DXCC/2022_Current_Deleted.txt";
 const char* szLookupFile = "dxcc.txt";
 
+#ifdef _DEBUG
 int trapX{};
 void trap() { ++trapX; }
+#endif
 
 bool DXCC::fetchARRL()
 {
@@ -86,7 +88,6 @@ RAWLOOKUP::RAWLOOKUP(RAWLOOKUP* r)		// copy constructor
 void DXCC::postRaw(RAWLOOKUP* raw)
 {
 	LOOKUP* lu = new LOOKUP;			// make a 'proper' LOOKUP
-	lu->prefix		= _strdup(raw->prefix);
 	lu->entity		= _strdup(raw->entity);
 	lu->continent	= _strdup(raw->continent);
 	lu->itu			= _strdup(raw->itu);
@@ -103,14 +104,15 @@ void DXCC::processPrefix(RAWLOOKUP* raw)
 	}
 	if(strcmp(raw->prefix, "7")==0)								// Agalega & St. Brandon Is.
 		strcpy_s(raw->prefix, sizeof(RAWLOOKUP::prefix), "3B7");
-	if(strcmp(raw->prefix, "UA-UI1-7,RA-RZ")==0)
+	if(strcmp(raw->prefix, "UA-UI1-7,RA-RZ")==0)				// European Russia
 		strcpy_s(raw->prefix, sizeof(RAWLOOKUP::prefix), "UA-UI1-7,RA-RZ1-7,R1-7");
-	if(strcmp(raw->prefix, "UA-UI8-0,RA-RZ")==0)
+	if(strcmp(raw->prefix, "UA-UI8-0,RA-RZ")==0)				// Asiatic Russia
 		strcpy_s(raw->prefix, sizeof(RAWLOOKUP::prefix), "UA-UI8-0,RA-RZ8-0,R8-0");
-#if true
-	if(strcmp(raw->prefix, "I")==0)
+#if false
+	if(strcmp(raw->prefix, "I")==0)			// debug convenience
 		trap();
 #endif
+
 	// deal with groups
 	if(strchr(raw->prefix, ',')!=nullptr){		// do we have commas?
 		char* q{};
@@ -136,7 +138,7 @@ void DXCC::processPrefix(RAWLOOKUP* raw)
 		int m = (int)strlen(raw->prefix+n+1);			// number of characters after the dash
 		// now separate it into before, incrementing, target, after (after may contain another dash)
 		char before[30]{}, from[30]{}, to[30]{}, after[30]{};
-		if(n==m){										// simplest case A4-A8 meaning A4 A% A6 A7 A8 or A4T-A7T meaning A4T A5T A6T A7T
+		if(n==m){										// simplest case A4-A8 meaning A4 A5 A6 A7 A8 or A4T-A7T meaning A4T A5T A6T A7T
 			strncpy_s(from, sizeof(from), raw->prefix, n);
 			strncpy_s(to, sizeof(to), raw->prefix+n+1, n);
 		}
@@ -154,7 +156,7 @@ void DXCC::processPrefix(RAWLOOKUP* raw)
 		int diff;
 		for(diff=0; from[diff] && from[diff]==to[diff]; ++diff);
 		if(from[diff]==0){
-error:		MessageBox(nullptr, raw->prefix, "ARGH!!!", MB_OK);
+error:		MessageBox(nullptr, raw->prefix, "ARGH!!!", MB_OK);		// simplistic debug
 		}
 		int safety{};
 		// I have a problem with Russian Asiatic call signs using the range 8-0 which I assume means 8,9,0
@@ -172,7 +174,7 @@ error:		MessageBox(nullptr, raw->prefix, "ARGH!!!", MB_OK);
 			strcat_s(r1->prefix, sizeof(RAWLOOKUP::prefix), from);		//
 			from[diff] = frigC;											// frig ends
 			strcat_s(r1->prefix, sizeof(RAWLOOKUP::prefix), after);
-			processPrefix(r1);					// processes and deletes r1
+			processPrefix(r1);											// processes and deletes r1
 			from[diff]++;
 			if(safety++>30) goto error;
 		}
@@ -238,8 +240,9 @@ skip:
 	if(fopen_s(&fd, "LookupDump.edc", "w")==0){	// overwrite if needed
 		char bx[500];
 		for(auto &x : lookupTable){
+			std::string call = x.first;
 			LOOKUP &y = x.second;
-			sprintf_s(bx, sizeof(bx), "%-22s %-40s %-8s %-8s %-8s %-8s\n", y.prefix, y.entity, y.continent, y.itu, y.cq, y.code);
+			sprintf_s(bx, sizeof(bx), "%-22s %-40s %-8s %-8s %-8s %-8s\n", call.c_str(), y.entity, y.continent, y.itu, y.cq, y.code);
 			fputs(bx, fh);
 		}
 		fclose(fh);

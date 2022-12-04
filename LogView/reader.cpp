@@ -6,7 +6,7 @@
 
 // read/write an ADIF file
 
-// the header is
+// an example header is
 
 //	ADIF Export from ADIFMaster v[3.4]
 //	http://www.dxshell.com
@@ -189,9 +189,7 @@ void ADIF::addHeader()
 	tm now{};
 	localtime_s(&now, &t);
 	strftime(date, sizeof(date), "%d %b, 20%C at %H:%M", &now);
-	sprintf_s(temp, sizeof(temp), "ADIF Export from ADIFMaster v[3.4]\n"
-								  "http://www.dxshell.com\n"
-								  "Copyright (C) 2005 - 2022 UU0JC, DXShell.com\n"
+	sprintf_s(temp, sizeof(temp), "ADIF Export from Nigel's Log\n"
 								  "File generated on %s\n", date);
 	preamble = _strdup(temp);
 	headers.push_back(ITEM("ADIF_VER", "3.1.2"));

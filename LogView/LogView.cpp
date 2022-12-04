@@ -73,11 +73,11 @@ HWND CreateListView(HINSTANCE hInstance, HWND hwndParent)
 		HICON hIcon;
 
 		// set up the small image list
-		hIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_DISK), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
+		hIcon = (HICON)LoadImage(hInstance, MAKEINTRESOURCE(IDI_Station), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
 		ImageList_AddIcon(himlSmall, hIcon);
 
 		//set up the large image list
-		hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_DISK));
+		hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_Station));
 		ImageList_AddIcon(himlLarge, hIcon);
 
 		ListView_SetImageList(hwndListView, himlSmall, LVSIL_SMALL);
@@ -154,26 +154,19 @@ LRESULT ListViewNotify(HWND hWnd, LPARAM lParam)
 		{
 			LV_DISPINFO *lpdi = (LV_DISPINFO *)lParam;
 
-			if(lpdi->item.iSubItem){
-				if(lpdi->item.mask & LVIF_TEXT){
-					const char* col = logbook->titles[lpdi->item.iSubItem].col;		// column name
-					ENTRY* e = &logbook->entries[lpdi->item.iItem];					// find entry for row
-					ITEM*  i = e->find(col);										// find item for column
-					if(i)
-						strcpy_s(lpdi->item.pszText, lpdi->item.cchTextMax, i->value);
+			if(lpdi->item.mask & LVIF_TEXT){
+				const char* col;
+				if(lpdi->item.iSubItem)
+					col  = logbook->titles[lpdi->item.iSubItem].col;		// sub-item column name
+				else{
+					col = logbook->titles[0].col;							// first column name
+					if(lpdi->item.mask & LVIF_IMAGE)						// does it want the icon too?
+						lpdi->item.iImage = 0;
 				}
-			}
-			else{
-				if(lpdi->item.mask & LVIF_TEXT){
-					const char* col = logbook->titles[0].col;						// first column name
-					ENTRY* e = &logbook->entries[lpdi->item.iItem];					// find entry for row
-					ITEM*  i = e->find(col);										// find item for column
-					if(i)
-						strcpy_s(lpdi->item.pszText, lpdi->item.cchTextMax, i->value);
-				}
-
-				if(lpdi->item.mask & LVIF_IMAGE)
-					lpdi->item.iImage = 0;
+				ENTRY* e = &logbook->entries[lpdi->item.iItem];				// find entry for row
+				ITEM*  i = e->find(col);									// find item for column
+				if(i)
+					strcpy_s(lpdi->item.pszText, lpdi->item.cchTextMax, i->value);
 			}
 			return 0;
 		}
@@ -387,12 +380,12 @@ int APIENTRY wWinMain(	_In_ HINSTANCE		hInstance,
 	wcex.cbClsExtra		= 0;
 	wcex.cbWndExtra		= 0;
 	wcex.hInstance		= hInstance;
-	wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDC_Log));
+	wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDC_LogView));
 	wcex.hCursor		= LoadCursor(nullptr, IDC_ARROW);
 	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW + 1);
-	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_Log);
+	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_LogView);
 	wcex.lpszClassName	= "LogView";
-	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_LogView));
 
 	RegisterClassEx(&wcex);
 
@@ -411,7 +404,7 @@ int APIENTRY wWinMain(	_In_ HINSTANCE		hInstance,
 	ShowWindow(hWnd, nCmdShow);
 	UpdateWindow(hWnd);
 
-	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_Log));
+	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_LogView));
 	MSG msg;
 
 	// Main message loop:

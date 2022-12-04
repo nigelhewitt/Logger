@@ -5,9 +5,9 @@
 #define IDD_ABOUTBOX			100
 #define IDM_ABOUT				101
 #define IDM_EXIT				102
-#define IDI_Log					103
-#define IDI_SMALL				104
-#define IDC_Log					105
+#define IDI_LogView				103
+#define IDI_Station				104
+#define IDC_LogView				105
 #define ID_LISTVIEW				106
 #define IDC_MYICON				107
 #ifndef IDC_STATIC
@@ -17,7 +17,6 @@
 #define IDI_MAINICON           108
 #define IDM_MAIN_MENU          109
 #define IDM_CONTEXT_MENU       110
-#define IDI_DISK               111
 #define IDM_LARGE_ICONS        112
 #define IDM_SMALL_ICONS        113
 #define IDM_LIST               114

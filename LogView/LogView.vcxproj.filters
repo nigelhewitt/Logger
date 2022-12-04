@@ -34,10 +34,10 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="small.ico">
+    <Image Include="LogView.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="LogView.ico">
+    <Image Include="Station.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
