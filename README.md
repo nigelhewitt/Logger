@@ -11,9 +11,9 @@ that I believe covers the actual callsigns used. It decodes all the countries in
 current log other than four that I don't actually believe in.
 
 The ListView source is based on an old Microsoft example with my tweaks.
-The unit tests are only for the bits that were better tests offline.
-The filename is hardcoded but simple to fix. I will put it in an INI file later and add
-a 'Select file' option.
+The Unit tests are only for the bits that were better tested offline.
+The filename is hardcoded but simple to fix. I will probably put it in an INI file later
+and add a 'Select file' option.
 
 This is 'take one' with ADI read, DXCC addition, display and column sorting. I wanted to
 archive the country code source safely as it took a while to derive and test. All the log
