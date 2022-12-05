@@ -9,8 +9,9 @@ HINSTANCE hInstance{};				// current instance
 HWND  hView{};
 ADIF* logbook{};
 DXCC* dxcc{};
+LOTW* lotw;
 
-// Message handler for about box.
+// Message handler for the 'about' box.
 INT_PTR CALLBACK About(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
 {
 	switch(uMessage){
@@ -36,7 +37,7 @@ void ResizeListView(HWND hwndListView, HWND hwndParent)
 	GetClientRect(hwndParent, &rc);
 	MoveWindow(hwndListView, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, TRUE);
 }
-
+// create the ListView control
 HWND CreateListView(HINSTANCE hInstance, HWND hwndParent)
 {
 	DWORD		dwStyle;
@@ -91,8 +92,8 @@ void PositionHeader(HWND hwndListView)
 	HWND  hwndHeader = GetWindow(hwndListView, GW_CHILD);
 	DWORD dwStyle = GetWindowLong(hwndListView, GWL_STYLE);
 
-	/* To ensure that the first item will be visible, create the control without 
-	   the LVS_NOSCROLL style and then add it here*/
+	// To ensure that the first item will be visible, create the control without 
+	// the LVS_NOSCROLL style and then add it here
 	dwStyle |= LVS_NOSCROLL;
 	SetWindowLong(hwndListView, GWL_STYLE, dwStyle);
 
@@ -119,6 +120,7 @@ void PositionHeader(HWND hwndListView)
 		ListView_EnsureVisible(hwndListView, 0, FALSE);
 	}
 }
+// since we're using a callback to get the data we just set the number of items
 void InsertListViewItems(HWND hwndListView)
 {
 	// empty the list
@@ -127,11 +129,15 @@ void InsertListViewItems(HWND hwndListView)
 	// set the number of items in the list
 	ListView_SetItemCount(hwndListView, logbook->entries.size());
 }
+// set up the columns
 void InitListView(HWND hwndListView)
 {
 	ListView_DeleteAllItems(hwndListView);
 
-#define CHAR_WIDTH	7				// pixel width of character		??????????????????????????????????????????
+	// setting the width to a sensible value is a bit of a bodge.
+	// the real trick would be to make a screen HDC, put in the font I'm using
+	// and use GetExtents...   Manana
+#define CHAR_WIDTH	7				// pixel width of character
 
 	// initialize the columns
 	LV_COLUMN lvColumn;
@@ -144,13 +150,14 @@ void InitListView(HWND hwndListView)
 	}
 	InsertListViewItems(hwndListView);
 }
+// handle the 'Notify' messages
 LRESULT ListViewNotify(HWND hWnd, LPARAM lParam)
 {
 	LPNMHDR  lpnmh = (LPNMHDR) lParam;
 	HWND     hwndListView = GetDlgItem(hWnd, ID_LISTVIEW);
 
 	switch(lpnmh->code){
-	case LVN_GETDISPINFO:
+	case LVN_GETDISPINFO:			// get the text to display
 		{
 			LV_DISPINFO *lpdi = (LV_DISPINFO *)lParam;
 
@@ -171,31 +178,7 @@ LRESULT ListViewNotify(HWND hWnd, LPARAM lParam)
 			return 0;
 		}
 
-	case LVN_ODCACHEHINT:
-		{
-			LPNMLVCACHEHINT	lpCacheHint = (LPNMLVCACHEHINT)lParam;
-			/*
-				This sample doesn't use this notification, but this is sent when the 
-				ListView is about to ask for a range of items. On this notification, 
-				you should load the specified items into your local cache. It is still 
-				possible to get an LVN_GETDISPINFO for an item that has not been cached, 
-				therefore, your application must take into account the chance of this 
-				occurring.
-			*/
-			return 0;
-		}
-
-	case LVN_ODFINDITEM:
-		{
-			LPNMLVFINDITEM lpFindItem = (LPNMLVFINDITEM)lParam;
-			/*
-				This sample doesn't use this notification, but this is sent when the 
-				ListView needs a particular item. Return -1 if the item is not found.
-			*/
-			return 0;
-		}
-
-	case LVN_COLUMNCLICK:
+	case LVN_COLUMNCLICK:		// I implemented a sort on header click
 		{
 			LPNMLISTVIEW pnmv = (LPNMLISTVIEW)lParam;	// click column header
 			logbook->sort(logbook->titles[pnmv->iSubItem].col, false);
@@ -205,22 +188,7 @@ LRESULT ListViewNotify(HWND hWnd, LPARAM lParam)
 	}
 	return 0;
 }
-void ErrorHandler(DWORD err, char* temp, int cb)
-{
-	if(err==0)
-		err = GetLastError();
-
-	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, nullptr, err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), temp, cb, nullptr);
-	// now remove the \r\n we get on the end
-	for(int n=(int)strlen(temp); n && (temp[n-1]=='\r' || temp[n-1]=='\n'); temp[n---1]=0);		// yes it does compile
-}
-void ErrorHandler()
-{
-	char temp[200];
-	ErrorHandler(0, temp, sizeof(temp));
-	MessageBox(0, temp, "Error", MB_OK);
-}
-
+// change the listView style
 void SwitchView(HWND hwndListView, DWORD dwView)
 {
 	DWORD dwStyle = GetWindowLong(hwndListView, GWL_STYLE);
@@ -231,7 +199,6 @@ void SwitchView(HWND hwndListView, DWORD dwView)
 void UpdateMenu(HWND hwndListView, HMENU hMenu)
 {
 	UINT  uID = IDM_LIST;
-	DWORD dwStyle;
 
 	// uncheck all of these guys
 	CheckMenuItem(hMenu, IDM_LARGE_ICONS,	MF_BYCOMMAND | MF_UNCHECKED);
@@ -240,7 +207,7 @@ void UpdateMenu(HWND hwndListView, HMENU hMenu)
 	CheckMenuItem(hMenu, IDM_REPORT,		MF_BYCOMMAND | MF_UNCHECKED);
 
 	// check the appropriate view menu item
-	dwStyle = GetWindowLong(hwndListView, GWL_STYLE);
+	DWORD dwStyle = GetWindowLong(hwndListView, GWL_STYLE);
 	switch(dwStyle & LVS_TYPEMASK){
 	case LVS_ICON:
 		uID = IDM_LARGE_ICONS;
@@ -296,12 +263,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 
 	switch(uMessage){
 	case WM_CREATE:
-		dxcc = new DXCC;
+		readConfig();
+restart:
+		// we jump to restart if we have uploaded new DXCC or LOTW files
+		// and need to reload the display. We always reload the log file
+		// on restart as that regenerates the data
+		if(dxcc==nullptr)
+			dxcc = new DXCC;
+		if(lotw==nullptr){
+			lotw = new LOTW;
+			lotw->load();
+		}
+		if(logbook!=nullptr)
+			delete logbook;
 		logbook = new ADIF;
 		do{
 			readConfig("files", "log", "", logFile, sizeof(logFile));
 			if(logFile[0]==0){
-				if(!GetFile(hWnd, "Give name of log-file to open", logFile, sizeof(logFile))) exit(0);
+nFile:			if(!GetFile(hWnd, "Give name of log-file to open", logFile, sizeof(logFile))) exit(0);
 				writeConfig("files", "log", logFile);
 			}
 		} while(logbook->read(logFile)==false);
@@ -329,6 +308,25 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 	case WM_COMMAND:
 		// Parse the menu selections:
 		switch (LOWORD(wParam)){
+		case IDM_NEW:				// select a new file
+			delete logbook;
+			logbook = new ADIF;		// new but empty
+			goto nFile;				// ask for a new file name to load
+
+		case IDM_DXCC:				// reload the country data
+			delete dxcc;
+			dxcc = new DXCC(true);	// force a download
+			goto restart;
+
+		case IDM_LOTW:				// reload the worked/QSLed lists
+			delete lotw;
+			lotw = new LOTW;
+			lotw->load(true);		// force a download
+			goto restart;
+
+		case IDM_RELOAD:			// reload the existing file (may be updating live)
+			goto restart;
+
 		case IDM_LARGE_ICONS:
 			SwitchView(hView, LVS_ICON);
 			break;

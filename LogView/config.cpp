@@ -1,4 +1,4 @@
-// reader.cpp : read/write operations on a log file.
+// config.cpp : configuration and other utilities
 //
 
 #include "framework.h"
@@ -8,24 +8,29 @@
 // ini file
 //-------------------------------------------------------------------------------------------------
 
-// I am making the assumption that the read is called before write on all sequences
-// but I wrote the code to ask first
-
+char cwd[MAX_PATH]{};
 static char iniFile[MAX_PATH]{};
 
-void readConfig(const char* section, const char* item, const char* def, char* buffer, int cb)
+void readConfig()
 {
 	if(iniFile[0]==0){
-		(void)_getcwd(iniFile, sizeof(iniFile));
+		(void)_getcwd(cwd, sizeof(cwd));
+		strcpy_s(iniFile, sizeof(iniFile), cwd);
 		strcat_s(iniFile, sizeof(iniFile), "\\config.edc");
 	}
+}
+void readConfig(const char* section, const char* item, const char* def, char* buffer, int cb)
+{
+	readConfig();
 	GetPrivateProfileString(section, item, def, buffer, cb, iniFile);
 }
 void  writeConfig(const char* section, const char* item, const char* value)
 {
+	readConfig();
 	WritePrivateProfileString(section, item, value, iniFile);
 }
 
+// I use the older style FileOpen dialog just because it isn't as smart as the new one
 bool GetFile(HWND hParent, const char* caption, char* file, int cb)
 {
 	OPENFILENAME ofn;
@@ -46,4 +51,26 @@ bool GetFile(HWND hParent, const char* caption, char* file, int cb)
 	ofn.Flags			= OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_EXPLORER;
 
 	return GetOpenFileName(&ofn)!=0;
+}
+
+// read a file into an array of characters
+char* LoadFile(const char* fname)
+{
+	FILE* fh;
+	char* buffer{};
+	if(fopen_s(&fh, fname, "r")==0){
+		if(fseek(fh, 0, SEEK_END)==0){
+			size_t fsize = ftell(fh);
+			fseek(fh, 0, SEEK_SET);
+			buffer = new char[fsize+1];
+			size_t n = fread_s(buffer, fsize+1, 1, fsize, fh);
+			buffer[n] = 0;
+			if(n==0){
+				delete[] buffer;
+				buffer = nullptr;
+			}
+		}
+		fclose(fh);
+	}
+	return buffer;
 }

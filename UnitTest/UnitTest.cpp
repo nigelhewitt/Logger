@@ -6,6 +6,7 @@
 #include "../LogView/lookup.cpp"
 #include "../LogView/LogView.cpp"
 #include "../LogView/config.cpp"
+#include "../LogView/lotw.cpp"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

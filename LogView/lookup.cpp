@@ -1,53 +1,57 @@
-// lookup.cpp : find a country for a callsign.
+// lookup.cpp : find the country for a callsign.
 //
 
 #include "framework.h"
 #include "LogView.h"
 
-
-// well the definitive article is in man readable at
-//	http://www.arrl.org/files/file/DXCC/2022_Current_Deleted.txt
+// Well the definitive article is in man readable form at
+//		http://www.arrl.org/files/file/DXCC/2022_Current_Deleted.txt
 // I copy it to
-//	dxcc.txt
+//		dxcc.txt
+// and cook it
 
 const char* szURL		 = "http://www.arrl.org/files/file/DXCC/2022_Current_Deleted.txt";
 const char* szLookupFile = "dxcc.txt";
 
-#ifdef _DEBUG
-int trapX{};
-void trap() { ++trapX; }
-#endif
+// A routine to ensure we have the DXCC definitions file. Since it almost never changes
+// I rely on the locally cached version unless told to do otherwise
 
-bool DXCC::fetchARRL()
+bool DXCC::fetchARRL(bool force)
 {
-	if(FileExists(szLookupFile)) return true;
+	bool exists = FileExists(szLookupFile);
+	if(!force && exists) return true;			// we have it
 	
-	char szCWD[260];
-	(void)_getcwd(szCWD, sizeof(szCWD));
+	if(!force){
+		char temp[500];
+		sprintf_s(temp, sizeof(temp), "Unable to locate file %s in folder %s\nDownload from internet?", szLookupFile, cwd);
 
-	char temp[500];
-	sprintf_s(temp, sizeof(temp), "Unable to locate file %s in folder %s\nDownload from internet?", szLookupFile, szCWD);
-	int res = MessageBoxA(nullptr, temp, "Callsign to DXCC table", MB_YESNO);
-	if(res!=IDYES) return false;
+		if(MessageBoxA(nullptr, temp, "Callsign to DXCC country name table", MB_YESNO)!=IDYES)
+			return false;
+	}
+	else if(exists)
+		_unlink(szLookupFile);
 
-	HRESULT ok = URLDownloadToFile(nullptr, szURL, szLookupFile, 0, nullptr);
-	if(ok==S_OK) return true;
-	MessageBox(nullptr, "No that failed too...", "Callsign to DXCC table", MB_OK);
+	if(URLDownloadToFile(nullptr, szURL, szLookupFile, 0, nullptr)==S_OK)
+		return true;
+
+	MessageBox(nullptr, "Failed to read DXCC definitions...", "Callsign to DXCC table", MB_OK);
 	return false;
 }
 
-//012345678901234567890123456789012345678901234567890123456789012345678901234567890
-//    3B9                 Rodrigues I.                       AF    53    39    207\n
+// Some tools to make the job simpler
 
+// is the char in a list
 static bool isin(char c, const char* list){ return strchr(list, c)!=nullptr; }
 
+// remove trailing characters
 static void strip_trailing(char* p, const char* strip)
 {
 	while(*p) ++p;							// move to the end of line
 	--p;									// back into text
 	while(isin(*p, strip)) *p--=0;
 }
-static void strip_brackets(char* p)			// ie: footnotes
+// remove "(45)" style footnote numbers
+static void strip_brackets(char* p)
 {
 	int i, j;
 	for(i=0, j=0; p[i]; ++i){
@@ -60,6 +64,7 @@ static void strip_brackets(char* p)			// ie: footnotes
 	}
 	p[j] = 0;
 }
+// is a whole string alphanumeric?
 static bool isalmum(const char* str)
 {
 	while(*str)
@@ -67,14 +72,15 @@ static bool isalmum(const char* str)
 			return false;
 	return true;
 }
+// like _strdup() but only for n characters
 char* _strndup(const char* p, int n)
 {
-	char temp[40];
+	char temp[100];
 	strncpy_s(temp, sizeof(temp), p, n);
 	return _strdup(temp);
 }
 
-// this is a LOOKUP without all the _strdup()s to compact it so we can copy it
+// this is a LOOKUP without all the _strdup()s to compact it so we can copy it about easily
 
 RAWLOOKUP::RAWLOOKUP(RAWLOOKUP* r)		// copy constructor
 {
@@ -85,6 +91,7 @@ RAWLOOKUP::RAWLOOKUP(RAWLOOKUP* r)		// copy constructor
 	strcpy_s(cq,		sizeof(RAWLOOKUP::cq),			r->cq);
 	strcpy_s(code,		sizeof(RAWLOOKUP::code),		r->code);
 }
+// take a RAWLOOKUP and convert it to a LOOKUP and put it in the lookupTable
 void DXCC::postRaw(RAWLOOKUP* raw)
 {
 	LOOKUP* lu = new LOOKUP;			// make a 'proper' LOOKUP
@@ -95,6 +102,22 @@ void DXCC::postRaw(RAWLOOKUP* raw)
 	lu->code		= _strdup(raw->code);
 	lookupTable[raw->prefix] = *lu;
 }
+// Routine to make some sense of the prefixes given
+// you get simple single entities
+//		A5
+// you get alternatives:
+//		G,GX,M
+// you get footnotes
+//		(17)
+// you get qualifying symbols
+//		#*
+// and you get ranges
+//		9Q-9T			meaning, I assume, 9Q,9R,9S,9T
+// and you get them all wonderfully hodge-podged in together
+//		YN,H6-7,HT#*
+// and then there's Russia
+//		see later, I changed the Russian strings for something that works
+
 void DXCC::processPrefix(RAWLOOKUP* raw)
 {
 	// Now deal with the more obvious bugs in the table
@@ -184,6 +207,9 @@ error:		MessageBox(nullptr, raw->prefix, "ARGH!!!", MB_OK);		// simplistic debug
 	postRaw(raw);
 	delete raw;
 }
+// the lines look like this
+//012345678901234567890123456789012345678901234567890123456789012345678901234567890
+//    3B9                 Rodrigues I.                       AF    53    39    207\n
 bool DXCC::processLookup(const char* p, int lineno)
 {
 	// break up the line into blocks
@@ -207,10 +233,10 @@ bool DXCC::processLookup(const char* p, int lineno)
 	processPrefix(raw);
 	return true;		// must return true to continue
 }
-DXCC::DXCC()
+DXCC::DXCC(bool force)
 {
 	// if it fails we just get no look ups
-	if(!fetchARRL()) return;
+	if(!fetchARRL(force)) return;
 	
 	// open the file
 	FILE* fh{};
@@ -247,8 +273,6 @@ skip:
 		}
 		fclose(fh);
 	}
-	else
-		ErrorHandler();
 #endif
 }
 

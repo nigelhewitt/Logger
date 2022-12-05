@@ -21,27 +21,6 @@
 //	<CALL:6>SQ7HJG <GRIDSQUARE:4>JO91 <MODE:3>FT8 <RST_SENT:3>-10 <RST_RCVD:3>-04 <QSO_DATE:8>20221121 <TIME_ON:6>132730 <QSO_DATE_OFF:8>20221121
 //	     <TIME_OFF:6>132954 <BAND:3>20m <FREQ:9>14.076004 <STATION_CALLSIGN:5>G8JFT <MY_GRIDSQUARE:6>IO90WT <EOR>
 
-// read a file into an array of characters
-static char* LoadFile(const char* fname)
-{
-	FILE* fh;
-	char* buffer{};
-	if(fopen_s(&fh, fname, "r")==0){
-		if(fseek(fh, 0, SEEK_END)==0){
-			size_t fsize = ftell(fh);
-			fseek(fh, 0, SEEK_SET);
-			buffer = new char[fsize+1];
-			size_t n = fread_s(buffer, fsize+1, 1, fsize, fh);
-			buffer[n] = 0;
-			if(n==0){
-				delete[] buffer;
-				buffer = nullptr;
-			}
-		}
-		fclose(fh);
-	}
-	return buffer;
-}
 
 //=================================================================================================
 // read/write  a single item
@@ -49,12 +28,12 @@ static char* LoadFile(const char* fname)
 
 ITEM* ITEM::read(char* &in)
 {
-	char c;
-	while((c=*in)!=0 && isspace(c)) ++in;		// skip leading spaces
-	if(c!='<') return nullptr;					// get the opening '<'
+	while(*in && *in!='<') ++in;				// skip spaces and comments
+
+	if(*in!='<') return nullptr;					// get the opening '<'
 	++in;
 
-	char name[50];								// read the name
+	char c, name[50];								// read the name
 	int i{0};
 	while((c=*in)!=0 && c!=':' && c!='>' && i+1<(int)sizeof(name)){	// stupid cast to remove stupid warning
 		name[i++] = c;
@@ -229,16 +208,24 @@ bool ADIF::read(char* &in)
 		if(call && call->value){
 			LOOKUP* lu = dxcc->lookup(call->value);
 			if(lu && lu->entity){
-				ITEM *cx  = new ITEM;
-				cx->name  = _strdup("DXCC");
-				cx->value = _strdup(lu->entity);
+				ITEM *cx  = new ITEM("DXCC", lu->entity);
 				e.items.insert(e.items.begin()+1, *cx);
 
-				ITEM *cy  = new ITEM;
-				cy->name  = _strdup("CODE");
-				cy->value = _strdup(lu->code);
+				ITEM *cy  = new ITEM("CODE", lu->code);
 				e.items.insert(e.items.begin()+2, *cy);
 			}
+		}
+	}
+	// patch in the LoTW QSL records
+	for(ENTRY& e : entries){
+		ITEM* call = e.find("CALL");			// find the callsign item
+		const char* vx = "";
+		if(call && call->value){
+			if(lotw->lotwTable.contains(call->value))
+				vx = "X";
+//			ENTRY* xx = &lotw->lotwTable[call->value];
+			ITEM* y = new ITEM("LOTW", vx);
+			e.items.insert(e.items.begin()+3, *y);
 		}
 	}
 
@@ -262,7 +249,6 @@ bool ADIF::read(char* &in)
 			titles.push_back(*cc);
 	found:	;
 		}
-
 
 	return true;
 }

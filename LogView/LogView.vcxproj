@@ -145,6 +145,7 @@
     <ClCompile Include="config.cpp" />
     <ClCompile Include="LogView.cpp" />
     <ClCompile Include="lookup.cpp" />
+    <ClCompile Include="lotw.cpp" />
     <ClCompile Include="reader.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
