@@ -26,9 +26,11 @@ Please don't tell me that you wouldn't have done it this way as me laughing at y
 cause offence. Alternativly cut and stick what you want. I hoped to find an ADI file
 reader but couldn't find one I liked online.
 
-he configuration file is called config.edc and is a simple ascci 'ini' file eg:
-**```[setup]
+The configuration file is called config.edc and is a simple ascci 'ini' file eg:
+```
+[setup]
 LOTWuser=a user name
-LOTWpassword=a password```**
+LOTWpassword=a password
+```
 
 the system will add other stuff as needed.
