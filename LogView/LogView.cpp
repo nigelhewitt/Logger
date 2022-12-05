@@ -292,13 +292,19 @@ BOOL DoContextMenu(HWND hWnd, WPARAM wParam, LPARAM lParam)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 {
+	char logFile[MAX_PATH];
+
 	switch(uMessage){
 	case WM_CREATE:
-//		char temp[260];
-//		_getcwd(temp, sizeof(temp));
 		dxcc = new DXCC;
 		logbook = new ADIF;
-		logbook->read("C:\\Users\\nigel\\AppData\\Local\\WSJT-X\\wsjtx_log.adi");
+		do{
+			readConfig("files", "log", "", logFile, sizeof(logFile));
+			if(logFile[0]==0){
+				if(!GetFile(hWnd, "Give name of log-file to open", logFile, sizeof(logFile))) exit(0);
+				writeConfig("files", "log", logFile);
+			}
+		} while(logbook->read(logFile)==false);
 
 		hView = CreateListView(hInstance, hWnd);
 		InitListView(hView);

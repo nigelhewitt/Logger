@@ -112,3 +112,11 @@ private:
 	bool processLookup(const char* p, int lineno);
 	void processPrefix(RAWLOOKUP* raw);
 };
+
+//-------------------------------------------------------------------------------------------------
+// config.cpp
+//-------------------------------------------------------------------------------------------------
+
+void readConfig(const char* section, const char* item, const char* def, char* buffer, int cb);
+void writeConfig(const char* section, const char* item, const char* value);
+bool GetFile(HWND hParent, const char* caption, char* file, int cb);

@@ -142,6 +142,7 @@
     <Image Include="LogView.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="config.cpp" />
     <ClCompile Include="LogView.cpp" />
     <ClCompile Include="lookup.cpp" />
     <ClCompile Include="reader.cpp" />

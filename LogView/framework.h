@@ -17,8 +17,10 @@
 #include <time.h>
 #include <direct.h>
 #include <commctrl.h>
+#include <commdlg.h>
 #include <urlmon.h>
 #include <algorithm>
 
 #pragma comment(lib, "Comctl32.lib")
-#pragma comment(lib, "urlmon.lib")
+#pragma comment(lib, "URLmon.lib")
+#pragma comment(lib, "Comdlg32.lib")
