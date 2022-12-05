@@ -12,19 +12,19 @@ current log other than four that I don't actually believe in.
 
 The ListView source is based on an old Microsoft example with my tweaks.
 The Unit tests are only for the bits that were better tested offline.
-The filename is hardcoded but simple to fix. I will probably put it in an INI file later
-and add a 'Select file' option.
+The filename is saved as a default as it rarely changes so use the Fil menu to change it
+if needed.
 
 This is 'take one' with ADI read, DXCC addition, display and column sorting. I wanted to
 archive the country code source safely as it took a while to derive and test. All the log
 analysis stuff will come later and probably not be useful to anybody else.
 
-I consult my LoTW log and mark the 'confirmed' ones and possibly I will extend it to
-eQSL as these are the services I use.
+I have added code to consult my LoTW log and mark the 'confirmed' ones and possibly I will
+extend this to eQSL as these are the services I use.
 
 Please don't tell me that you wouldn't have done it this way as me laughing at you may
-cause offence. Alternatively cut and stick what you want. I hoped to find an ADI file
-reader but couldn't find one I liked online.
+cause offence. Alternatively cut and stick what you want. I had hoped to find code for
+an ADI file reader on line but couldn't find one I liked so here is my offering.
 
 The configuration file is called config.edc and is a simple Ascii 'ini' file eg:
 ```
