@@ -8,7 +8,7 @@ man-readable and unscramble that. I don't actually think it is very man readable
 can't deduce any certain rules that it doesn't break but I think I have a handle on what
 is intended - aside from the Russian entries that I substitute out with another string
 that I believe covers the actual callsigns used. It decodes all the countries in my
-current log other than four that I don't actually believe in.
+current log other than three that are unofficial and one that is just plain weird.
 
 The ListView source is based on an old Microsoft example with my tweaks.
 The Unit tests are only for the bits that were better tested offline.
@@ -19,16 +19,18 @@ This is 'take one' with ADI read, DXCC addition, display and column sorting. I w
 archive the country code source safely as it took a while to derive and test. All the log
 analysis stuff will come later and probably not be useful to anybody else.
 
-I have added code to consult my LoTW and eQSL log and mark the 'confirmed' ones and as
+I have added code to consult my LoTW and eQSL logs to mark the 'confirmed' ones and as
 these are the services I use.
 
 Please don't tell me that you wouldn't have done it this way as me laughing at you may
-cause offence. Alternatively cut and stick what you want. I had hoped to find code for
-an ADI file reader on line but couldn't find one I liked so here is my offering.
-I'll keep updating it while I'm tweaking it and when the systems change so I want more
-information.
+cause offence. I've been programming since the early 70s and I know I'm not cutting edge
+and I like it that way. Alternatively cut and stick what you want. I had hoped to find
+some example code for an ADI file reader on line but couldn't find one I liked so here is
+my offering. I will keep updating it while I'm tweaking it and when the systems change or
+I want more information.
 
-The configuration file is called config.edc and is a simple Ascii 'ini' file eg:
+To use passworded services it needs line in the configuration file. It is called
+config.edc and is a simple Ascii 'ini' file eg:
 ```
 [setup]
 LOTWuser=a user name
