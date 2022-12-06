@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LogView\config.edc = LogView\config.edc
 		LogView\dxcc.txt = LogView\dxcc.txt
 		LogView\LookupDump.edc = LogView\LookupDump.edc
+		LogView\lotw.adi = LogView\lotw.adi
 		README.md = README.md
 	EndProjectSection
 EndProject
