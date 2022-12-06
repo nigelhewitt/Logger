@@ -39,6 +39,9 @@
     <ClInclude Include="lotw.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="eqsl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LogView.rc">

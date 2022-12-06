@@ -7,6 +7,7 @@
 #include "../LogView/LogView.cpp"
 #include "../LogView/config.cpp"
 #include "../LogView/lotw.cpp"
+#include "../LogView/eqsl.cpp"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 

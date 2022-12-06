@@ -29,10 +29,10 @@ ITEM* ITEM::read(char* &in)
 {
 	while(*in && *in!='<') ++in;				// skip spaces and comments
 
-	if(*in!='<') return nullptr;					// get the opening '<'
+	if(*in!='<') return nullptr;				// get the opening '<'
 	++in;
 
-	char c, name[50];								// read the name
+	char c, name[50];							// read the name
 	int i{0};
 	while((c=*in)!=0 && c!=':' && c!='>' && i+1<(int)sizeof(name)){	// stupid cast to remove stupid warning
 		name[i++] = c;
@@ -58,18 +58,20 @@ ITEM* ITEM::read(char* &in)
 		n += c-'0';
 		++in;
 	}
-	if(n==0 || n>1000) return nullptr;
+	if(n>1000) return nullptr;					// zero is legal
 	++in;
 
 	ITEM* res = new ITEM;
 	res->name = _strdup(name);
-	res->value = new char[n+1];
-	i = 0;
-	while((c=*in)!=0 && i<n){
-		res->value[i++] = c;
-		++in;
+	if(n){
+		res->value = new char[n+1];
+		i = 0;
+		while((c=*in)!=0 && i<n){
+			res->value[i++] = c;
+			++in;
+		}
+		res->value[i] = 0;
 	}
-	res->value[i] = 0;
 	return res;
 }
 static bool icopy(char* &out, const char* x)
@@ -151,7 +153,7 @@ bool ENTRY::write(char* &out)
 ITEM* ENTRY::find(const char* name)
 {
 	for(ITEM& i : items)
-		if(strcmp(i.name, name)==0)
+		if(_stricmp(i.name, name)==0)
 			return &i;
 	return nullptr;
 }
@@ -230,10 +232,15 @@ bool ADIF::read(char* &in)
 		ITEM* call = e.find("CALL");			// find the callsign item
 		const char* vx = "";
 		if(call && call->value){
-			if(lotw->lotwTable.contains(call->value)){
-				// then I ought to check band and time and then write a findnext() in case I've worked him on 3 bands...
-				vx = "QSL";						// I really want a tick but that means using wide characters
-	//			ENTRY* xx = &lotw->lotwTable[call->value];
+			char temp[30];								// provision for multiple calls logged
+			strcpy_s(temp, sizeof(temp), call->value); 
+			while(lotw->lotwTable.contains(temp)){
+				ENTRY* rep = &lotw->lotwTable[temp];
+				if(matchReport(e, rep)){
+					vx = "QSL";
+					break;
+				}
+				increment(temp, sizeof(temp));			// try the next record for this callsign
 			}
 			ITEM* y = new ITEM("LOTW", vx);
 			e.items.insert(e.items.begin()+3, *y);
@@ -242,6 +249,32 @@ bool ADIF::read(char* &in)
 		if(first){
 			first = false;
 			e.items.insert(e.items.begin()+3, *(new ITEM("LOTW")));
+		}
+	}
+
+	// patch in the EQSL QSL records
+	first = true;
+	for(ENTRY& e : entries){
+		ITEM* call = e.find("CALL");			// find the callsign item
+		const char* vx = "";
+		if(call && call->value){
+			char temp[30];								// provision for multiple calls logged
+			strcpy_s(temp, sizeof(temp), call->value); 
+			while(eqsl->eqslTable.contains(temp)){
+				ENTRY* rep = &eqsl->eqslTable[temp];
+				if(matchReport(e, rep)){
+					vx = "QSL";						// I really want a tick but that means using wide characters
+					break;
+				}
+				increment(temp, sizeof(temp));
+			}
+			ITEM* y = new ITEM("EQSL", vx);
+			e.items.insert(e.items.begin()+4, *y);
+			first = false;
+		}
+		if(first){
+			first = false;
+			e.items.insert(e.items.begin()+4, *(new ITEM("EQSL")));
 		}
 	}
 
@@ -285,6 +318,43 @@ bool ADIF::write(const char* filename)
 {
 	return false;
 }
+//-------------------------------------------------------------------------------------------------
+// matchReport()
+//-------------------------------------------------------------------------------------------------
+
+// given two entries are they a match?
+// this gets called for the same call signs but what if there and contacts on several bands?
+// Date and time are a horror. One man's 20221231235959 is another man's 20230101000001
+// fortunately the items we want have standard names
+
+inline long iabs(long a){ if(a<0) return -a; return a; }
+
+bool ADIF::matchReport(ENTRY& me, ENTRY* them)
+{
+	ITEM* i1;
+	ITEM* i2 = them->find("QSL_RCVD");									// QSL received?
+	if(i2==nullptr || _stricmp(i2->value, "Y")!=0) return false;		// it is only my record
+
+	i1 = me.find("BAND");
+	i2 = them->find("BAND");
+	if(i1==nullptr || i2==nullptr || _stricmp(i1->value, i2->value)!=0) return false;
+
+	i1 = me.find("MODE");
+	i2 = them->find("MODE");
+	if(i1==nullptr || i2==nullptr || _stricmp(i1->value, i2->value)!=0) return false;
+
+	// now do the date and time
+	char d1[15], d2[15];
+	i1 = me.find("QSO_DATE");		if(i1==nullptr) return false;		strcpy_s(d1, sizeof(d1), i1->value);
+	i2 = them->find("QSO_DATE");	if(i2==nullptr) return false;		strcpy_s(d2, sizeof(d2), i2->value);
+	i1 = me.find("TIME_ON");		if(i1==nullptr) return false;		strcat_s(d1, sizeof(d1), i1->value);
+	i2 = them->find("TIME_ON");		if(i2==nullptr) return false;		strcat_s(d2, sizeof(d2), i2->value);
+	time_t t1 = unpackTime(d1);
+	time_t t2 = unpackTime(d2);
+
+	return  iabs((long)t1-(long)t2) < 30;			// let's give it 30 seconds
+}
+
 //=================================================================================================
 // sorting the vector
 //=================================================================================================

@@ -15,4 +15,8 @@ public:
 	bool read(const char* fname);						// expand the data
 
 	std::unordered_map<std::string, ENTRY> lotwTable;	// basically a hash table
+	char lotwFile[MAX_PATH]{};
 };
+
+// increment a callsign for multiple log items by adding #number
+void increment(char* c, int cb);

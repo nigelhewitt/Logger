@@ -11,7 +11,6 @@
 // the definitive document:
 //		https://lotw.arrl.org/lotw-help/developer-query-qsos-qsls/
 
-char lotwFile[MAX_PATH]{};
 
 void LOTW::addArg(const char* name, const char* value)
 {
@@ -20,6 +19,10 @@ void LOTW::addArg(const char* name, const char* value)
 	strcat_s(url, sizeof(url), temp); 
 	sep = '&';
 }
+//-------------------------------------------------------------------------------------------------
+// update()  download the data from the lotw website
+//-------------------------------------------------------------------------------------------------
+
 bool LOTW::update()
 {
 	// make the URL
@@ -41,8 +44,7 @@ bool LOTW::update()
 
 	// and do the 'read from internet' process
 	_unlink(lotwFile);
-	HRESULT ok = URLDownloadToFile(nullptr, url, lotwFile, 0, nullptr);
-	return ok==S_OK;
+	return URLDownloadToFile(nullptr, url, lotwFile, 0, nullptr)==S_OK;
 }
 //-------------------------------------------------------------------------------------------------
 // LOTW::load()		get the data and if not present interface with the user
@@ -69,6 +71,22 @@ bool LOTW::load(bool force)
 //  LOTW::read() process the data from the local file
 //-------------------------------------------------------------------------------------------------
 
+// there is a problem with hash tables and multiple entries - they just overwrite
+// but I don't want to loose the fast of hash so...
+void increment(char* c, int cb)
+{
+	char* p = strchr(c, '#');		// have we been here already?
+	if(p==nullptr)
+		strcat_s(c, cb, "#0");		// no
+	else{
+		*p = 0;						// yes so squash the #
+		int n = atoi(p+1);			// read the number
+		char number[10]="#";
+		_itoa_s(n+1, number+1, sizeof(number)-1, 10);
+		strcat_s(c, cb, number);
+	}
+}
+
 bool LOTW::read(const char* fname)
 {
 	char* in =  LoadFile(fname);
@@ -91,8 +109,13 @@ bool LOTW::read(const char* fname)
 		ENTRY *e = ENTRY::read(in);				// see reader.cpp
 		if(e==nullptr) break;
 		ITEM *i = e->find("CALL");
-		if(i!=nullptr)
-			lotwTable[i->value] = *e;			// add to the std::unordered_map
+		if(i!=nullptr){
+			char call[20];							// extract the callsign
+			strcpy_s(call, sizeof(call), i->value);
+			while(lotwTable.contains(call))		// is this a duplicate (different band, different time et al)
+				increment(call, sizeof(call));		// append #number
+			lotwTable[call] = *e;					// add to the std::unordered_map
+		}
 		else
 			delete e;							// although a log record with no callsign is an error
 	}

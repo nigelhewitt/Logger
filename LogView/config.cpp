@@ -79,3 +79,31 @@ char* LoadFile(const char* fname)
 	}
 	return buffer;
 }
+//-------------------------------------------------------------------------------------------------
+// unpack time
+//-------------------------------------------------------------------------------------------------
+
+unsigned int atou(const char* p, int cb)
+{
+	unsigned int x=0;
+	for(int i=0; i<cb; ++i){
+		x *= 10;
+		x += p[i]-'0';
+	}
+	return x;
+}
+time_t unpackTime(const char* text)
+{
+	// input is "20221206190425"
+	//           yyyymmddhhmmss
+	if(strlen(text)!=14) return 0;
+	tm t{};
+	t.tm_year = atou(text,    4) - 1900;	// years since 1900
+	t.tm_mon  = atou(text+4,  2) - 1;		// months since January (0-11)
+	t.tm_mday = atou(text+6,  2);			// day of the month (1-31)
+	t.tm_hour = atou(text+8,  2);			// hours
+	t.tm_min  = atou(text+10, 2);			// minutes
+	t.tm_sec  = atou(text+12, 2);			// seconds
+
+	return mktime(&t);
+}

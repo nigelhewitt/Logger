@@ -31,6 +31,7 @@
 #include "lookup.h"
 #include "config.h"
 #include "lotw.h"
+#include "eqsl.h"
 #include "LogView.h"
 
 // modules for the linker to include

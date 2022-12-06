@@ -18,3 +18,5 @@ bool GetFile(HWND hParent, const char* caption, char* file, int cb);
 // read a file into a char[]
 char* LoadFile(const char* fname);
 
+// unpack a 14 character packed date-time value
+time_t unpackTime(const char* text);

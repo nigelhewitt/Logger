@@ -19,18 +19,22 @@ This is 'take one' with ADI read, DXCC addition, display and column sorting. I w
 archive the country code source safely as it took a while to derive and test. All the log
 analysis stuff will come later and probably not be useful to anybody else.
 
-I have added code to consult my LoTW log and mark the 'confirmed' ones and possibly I will
-extend this to eQSL as these are the services I use.
+I have added code to consult my LoTW and eQSL log and mark the 'confirmed' ones and as
+these are the services I use.
 
 Please don't tell me that you wouldn't have done it this way as me laughing at you may
 cause offence. Alternatively cut and stick what you want. I had hoped to find code for
 an ADI file reader on line but couldn't find one I liked so here is my offering.
+I'll keep updating it while I'm tweaking it and when the systems change so I want more
+information.
 
 The configuration file is called config.edc and is a simple Ascii 'ini' file eg:
 ```
 [setup]
 LOTWuser=a user name
 LOTWpassword=a password
+eSQLuser=another username
+eQSLpassword=and another password
 ```
 
 the system will add other stuff as needed.

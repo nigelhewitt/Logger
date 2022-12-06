@@ -12,8 +12,9 @@
 #define IDC_MYICON				107
 #define IDM_DXCC				108
 #define IDM_LOTW				109
-#define IDM_RELOAD				110
-#define IDM_NEW					111
+#define IDM_EQSL				110
+#define IDM_RELOAD				111
+#define IDM_NEW					112
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
 #endif

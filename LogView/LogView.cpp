@@ -9,7 +9,8 @@ HINSTANCE hInstance{};				// current instance
 HWND  hView{};
 ADIF* logbook{};
 DXCC* dxcc{};
-LOTW* lotw;
+LOTW* lotw{};
+EQSL* eqsl{};
 
 // Message handler for the 'about' box.
 INT_PTR CALLBACK About(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
@@ -168,7 +169,7 @@ LRESULT ListViewNotify(HWND hWnd, LPARAM lParam)
 				}
 				ENTRY* e = &logbook->entries[lpdi->item.iItem];				// find entry for row
 				ITEM*  i = e->find(col);									// find item for column
-				if(i)
+				if(i  && i->value)
 					strcpy_s(lpdi->item.pszText, lpdi->item.cchTextMax, i->value);
 			}
 			return 0;
@@ -271,6 +272,10 @@ restart:
 			lotw = new LOTW;
 			lotw->load();
 		}
+		if(eqsl==nullptr){
+			eqsl = new EQSL;
+			eqsl->load();
+		}
 		if(logbook!=nullptr)
 			delete logbook;
 		logbook = new ADIF;
@@ -319,6 +324,12 @@ nFile:			if(!GetFile(hWnd, "Give name of log-file to open", logFile, sizeof(logF
 			delete lotw;
 			lotw = new LOTW;
 			lotw->load(true);		// force a download
+			goto restart;
+
+		case IDM_EQSL:				// reload the worked/QSLed lists
+			delete eqsl;
+			eqsl = new EQSL;
+			eqsl->load(true);		// force a download
 			goto restart;
 
 		case IDM_RELOAD:			// reload the existing file (may be updating live)
