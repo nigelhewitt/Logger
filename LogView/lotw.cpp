@@ -1,13 +1,15 @@
+//-------------------------------------------------------------------------------------------------
 // lotw.cpp : read the log for 'confirmed'
+//-------------------------------------------------------------------------------------------------
 //
 // This is another ADIF file but just reading it into a vector will be slow when it
 // come to matching things up so it gets it's own loader using parts of the ADIF
-// system but loading into an unordered_map<string, ENTRY>
+// system but loading into an unordered_map<string, ENTRY> for lookup speed
 
 #include "framework.h"
-#include "LogView.h"
 
-// https://lotw.arrl.org/lotw-help/developer-query-qsos-qsls/
+// the definitive document:
+//		https://lotw.arrl.org/lotw-help/developer-query-qsos-qsls/
 
 char lotwFile[MAX_PATH]{};
 
@@ -20,6 +22,7 @@ void LOTW::addArg(const char* name, const char* value)
 }
 bool LOTW::update()
 {
+	// make the URL
 	strcpy_s(url, sizeof(url),  "https://lotw.arrl.org/lotwuser/lotwreport.adi");
 	char login[20], password[20];
 	readConfig("setup", "LOTWuser", "", login, sizeof(login));
@@ -32,12 +35,19 @@ bool LOTW::update()
 	addArg("qso_starttime", "");
 	addArg("qso_qsl", "yes");				// only ask for the QSLed ones
 
+	// make the target file name
 	strcpy_s(lotwFile, sizeof(lotwFile), cwd);
 	strcat_s(lotwFile, sizeof(lotwFile), "\\lotw.adi");
+
+	// and do the 'read from internet' process
 	_unlink(lotwFile);
 	HRESULT ok = URLDownloadToFile(nullptr, url, lotwFile, 0, nullptr);
 	return ok==S_OK;
 }
+//-------------------------------------------------------------------------------------------------
+// LOTW::load()		get the data and if not present interface with the user
+//-------------------------------------------------------------------------------------------------
+
 bool LOTW::load(bool force)
 {
 	strcpy_s(lotwFile, sizeof(lotwFile), cwd);
@@ -55,6 +65,10 @@ bool LOTW::load(bool force)
 	}
 	return read(lotwFile);
 }
+//-------------------------------------------------------------------------------------------------
+//  LOTW::read() process the data from the local file
+//-------------------------------------------------------------------------------------------------
+
 bool LOTW::read(const char* fname)
 {
 	char* in =  LoadFile(fname);
@@ -71,15 +85,16 @@ bool LOTW::read(const char* fname)
 		}
 		i = nullptr;
 	}
+
 	// now read the entries
 	while(true){
-		ENTRY *e = ENTRY::read(in);
+		ENTRY *e = ENTRY::read(in);				// see reader.cpp
 		if(e==nullptr) break;
 		ITEM *i = e->find("CALL");
 		if(i!=nullptr)
-			lotwTable[i->value] = *e;
+			lotwTable[i->value] = *e;			// add to the std::unordered_map
 		else
-			delete e;
+			delete e;							// although a log record with no callsign is an error
 	}
 
 	delete[] ix;

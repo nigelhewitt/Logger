@@ -1,8 +1,8 @@
+//-------------------------------------------------------------------------------------------------
 // LogView.cpp : Defines the entry point for the application.
-//
+//-------------------------------------------------------------------------------------------------
 
 #include "framework.h"
-#include "LogView.h"
 
 // Global Variables:
 HINSTANCE hInstance{};				// current instance
@@ -31,6 +31,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
 }
 
 // make the ListView track the size of the enclosing window
+// used in create and WM_SIZE
 void ResizeListView(HWND hwndListView, HWND hwndParent)
 {
 	RECT rc;
@@ -40,26 +41,21 @@ void ResizeListView(HWND hwndListView, HWND hwndParent)
 // create the ListView control
 HWND CreateListView(HINSTANCE hInstance, HWND hwndParent)
 {
-	DWORD		dwStyle;
-	HWND		hwndListView;
-	HIMAGELIST	himlSmall;
-	HIMAGELIST	himlLarge;
-	BOOL        bSuccess = TRUE;
+	DWORD dwStyle =   WS_TABSTOP | WS_CHILD | WS_BORDER | WS_VISIBLE | LVS_AUTOARRANGE | LVS_REPORT |  LVS_OWNERDATA;
 
-	dwStyle =   WS_TABSTOP | WS_CHILD | WS_BORDER | WS_VISIBLE | LVS_AUTOARRANGE | LVS_REPORT |  LVS_OWNERDATA;
-
-	hwndListView = CreateWindowEx(WS_EX_CLIENTEDGE,			// ex style
-									 WC_LISTVIEW,			// class name - defined in commctrl.h
-									"",						// dummy text
-									dwStyle,				// style
-									0,						// x position
-									0,						// y position
-									0,						// width
-									0,						// height
-									hwndParent,				// parent
-									(HMENU)ID_LISTVIEW,		// ID
-									hInstance,				// instance
-									nullptr);				// no extra data
+	HWND hwndListView = CreateWindowEx(
+				WS_EX_CLIENTEDGE,		// ex style
+				WC_LISTVIEW,			// class name - defined in commctrl.h
+				"",						// dummy text
+				dwStyle,				// style
+				0,						// x position
+				0,						// y position
+				0,						// width
+				0,						// height
+				hwndParent,				// parent
+				(HMENU)ID_LISTVIEW,		// ID
+				hInstance,				// instance
+				nullptr);				// no extra data
 
 	if(!hwndListView)
 		return nullptr;
@@ -67,8 +63,8 @@ HWND CreateListView(HINSTANCE hInstance, HWND hwndParent)
 	ResizeListView(hwndListView, hwndParent);
 
 	// set the image lists
-	himlSmall = ImageList_Create(16, 16, ILC_COLORDDB | ILC_MASK, 1, 0);
-	himlLarge = ImageList_Create(32, 32, ILC_COLORDDB | ILC_MASK, 1, 0);
+	HIMAGELIST himlSmall = ImageList_Create(16, 16, ILC_COLORDDB | ILC_MASK, 1, 0);
+	HIMAGELIST himlLarge = ImageList_Create(32, 32, ILC_COLORDDB | ILC_MASK, 1, 0);
 
 	if(himlSmall && himlLarge){
 		HICON hIcon;
@@ -90,7 +86,7 @@ HWND CreateListView(HINSTANCE hInstance, HWND hwndParent)
 void PositionHeader(HWND hwndListView)
 {
 	HWND  hwndHeader = GetWindow(hwndListView, GW_CHILD);
-	DWORD dwStyle = GetWindowLong(hwndListView, GWL_STYLE);
+	DWORD dwStyle	 = GetWindowLong(hwndListView, GWL_STYLE);
 
 	// To ensure that the first item will be visible, create the control without 
 	// the LVS_NOSCROLL style and then add it here
@@ -136,7 +132,7 @@ void InitListView(HWND hwndListView)
 
 	// setting the width to a sensible value is a bit of a bodge.
 	// the real trick would be to make a screen HDC, put in the font I'm using
-	// and use GetExtents...   Manana
+	// and use GetExtents...   Mañana
 #define CHAR_WIDTH	7				// pixel width of character
 
 	// initialize the columns
@@ -188,7 +184,7 @@ LRESULT ListViewNotify(HWND hWnd, LPARAM lParam)
 	}
 	return 0;
 }
-// change the listView style
+// change the listView style - it was in the example but is seriously useless for logs
 void SwitchView(HWND hwndListView, DWORD dwView)
 {
 	DWORD dwStyle = GetWindowLong(hwndListView, GWL_STYLE);
@@ -227,7 +223,7 @@ void UpdateMenu(HWND hwndListView, HMENU hMenu)
 	}
 	CheckMenuRadioItem(hMenu, IDM_LARGE_ICONS, IDM_REPORT, uID,  MF_BYCOMMAND | MF_CHECKED);
 }
-
+// from the example - kept as it might be useful later
 BOOL DoContextMenu(HWND hWnd, WPARAM wParam, LPARAM lParam)
 {
 	HWND  hwndListView = (HWND)wParam;
@@ -254,9 +250,10 @@ BOOL DoContextMenu(HWND hWnd, WPARAM wParam, LPARAM lParam)
 	return TRUE;
 }
 
-//
-//  WndProc(HWND, UINT, WPARAM, LPARAM)
-//
+//-------------------------------------------------------------------------------------------------
+//  WndProc()		the main window procedure
+//-------------------------------------------------------------------------------------------------
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 {
 	char logFile[MAX_PATH];
@@ -267,7 +264,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 restart:
 		// we jump to restart if we have uploaded new DXCC or LOTW files
 		// and need to reload the display. We always reload the log file
-		// on restart as that regenerates the data
+		// on restart as that regenerates the data with new data
 		if(dxcc==nullptr)
 			dxcc = new DXCC;
 		if(lotw==nullptr){
@@ -352,17 +349,6 @@ nFile:			if(!GetFile(hWnd, "Give name of log-file to open", logFile, sizeof(logF
 			return 0;
 		}
 		break;
-
-#if false
-	case WM_PAINT:
-	{
-		PAINTSTRUCT ps;
-		HDC hdc = BeginPaint(hWnd, &ps);
-
-		EndPaint(hWnd, &ps);
-		return 0;
-	}
-#endif
 
 	case WM_DESTROY:
 		PostQuitMessage(0);

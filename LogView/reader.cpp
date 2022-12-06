@@ -2,7 +2,6 @@
 //
 
 #include "framework.h"
-#include "LogView.h"
 
 // read/write an ADIF file
 
@@ -221,9 +220,11 @@ bool ADIF::read(char* &in)
 		ITEM* call = e.find("CALL");			// find the callsign item
 		const char* vx = "";
 		if(call && call->value){
-			if(lotw->lotwTable.contains(call->value))
-				vx = "X";
+			if(lotw->lotwTable.contains(call->value)){
+				// then I ought to check band and time and then write a findnext() in case I've worked him on 3 bands...
+				vx = "QSL";						// I really want a tick but that means using wide characters
 //			ENTRY* xx = &lotw->lotwTable[call->value];
+			}
 			ITEM* y = new ITEM("LOTW", vx);
 			e.items.insert(e.items.begin()+3, *y);
 		}

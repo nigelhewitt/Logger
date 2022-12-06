@@ -1,11 +1,11 @@
+//-------------------------------------------------------------------------------------------------
 // config.cpp : configuration and other utilities
-//
+//-------------------------------------------------------------------------------------------------
 
 #include "framework.h"
-#include "LogView.h"
 
 //-------------------------------------------------------------------------------------------------
-// ini file
+// ini file stuff
 //-------------------------------------------------------------------------------------------------
 
 char cwd[MAX_PATH]{};
@@ -29,8 +29,10 @@ void  writeConfig(const char* section, const char* item, const char* value)
 	readConfig();
 	WritePrivateProfileString(section, item, value, iniFile);
 }
+//-------------------------------------------------------------------------------------------------
+// GetFile()	I use the older style FileOpen dialog just because it isn't as smart as the new one
+//-------------------------------------------------------------------------------------------------
 
-// I use the older style FileOpen dialog just because it isn't as smart as the new one
 bool GetFile(HWND hParent, const char* caption, char* file, int cb)
 {
 	OPENFILENAME ofn;
@@ -53,7 +55,10 @@ bool GetFile(HWND hParent, const char* caption, char* file, int cb)
 	return GetOpenFileName(&ofn)!=0;
 }
 
-// read a file into an array of characters
+//-------------------------------------------------------------------------------------------------
+// LoadFile()	read a file into an array of characters
+//-------------------------------------------------------------------------------------------------
+
 char* LoadFile(const char* fname)
 {
 	FILE* fh;

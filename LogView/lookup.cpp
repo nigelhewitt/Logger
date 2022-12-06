@@ -1,27 +1,28 @@
+//-------------------------------------------------------------------------------------------------
 // lookup.cpp : find the country for a callsign.
-//
+//-------------------------------------------------------------------------------------------------
 
 #include "framework.h"
-#include "LogView.h"
 
 // Well the definitive article is in man readable form at
 //		http://www.arrl.org/files/file/DXCC/2022_Current_Deleted.txt
-// I copy it to
+// so in theory I copy it to
 //		dxcc.txt
-// and cook it
+// and just read it
+// If only it were that simple
 
 const char* szURL		 = "http://www.arrl.org/files/file/DXCC/2022_Current_Deleted.txt";
 const char* szLookupFile = "dxcc.txt";
 
 // A routine to ensure we have the DXCC definitions file. Since it almost never changes
-// I rely on the locally cached version unless told to do otherwise
+// I rely on the locally cached version until told to do otherwise
 
 bool DXCC::fetchARRL(bool force)
 {
 	bool exists = FileExists(szLookupFile);
-	if(!force && exists) return true;			// we have it
+	if(!force && exists) return true;			// we have it already
 	
-	if(!force){
+	if(!force){									// computers should not ask silly questions if given orders
 		char temp[500];
 		sprintf_s(temp, sizeof(temp), "Unable to locate file %s in folder %s\nDownload from internet?", szLookupFile, cwd);
 
@@ -37,18 +38,19 @@ bool DXCC::fetchARRL(bool force)
 	MessageBox(nullptr, "Failed to read DXCC definitions...", "Callsign to DXCC table", MB_OK);
 	return false;
 }
-
+//-------------------------------------------------------------------------------------------------
 // Some tools to make the job simpler
+//-------------------------------------------------------------------------------------------------
 
 // is the char in a list
 static bool isin(char c, const char* list){ return strchr(list, c)!=nullptr; }
 
-// remove trailing characters
-static void strip_trailing(char* p, const char* strip)
+// remove trailing characters if they are in the list
+static void strip_trailing(char* p, const char* list)
 {
 	while(*p) ++p;							// move to the end of line
 	--p;									// back into text
-	while(isin(*p, strip)) *p--=0;
+	while(isin(*p, list)) *p--=0;
 }
 // remove "(45)" style footnote numbers
 static void strip_brackets(char* p)
@@ -79,8 +81,9 @@ char* _strndup(const char* p, int n)
 	strncpy_s(temp, sizeof(temp), p, n);
 	return _strdup(temp);
 }
-
-// this is a LOOKUP without all the _strdup()s to compact it so we can copy it about easily
+//-------------------------------------------------------------------------------------------------
+// RAWLOKUP is a LOOKUP without all the _strdup()s to compact it so we can copy it about easily
+//-------------------------------------------------------------------------------------------------
 
 RAWLOOKUP::RAWLOOKUP(RAWLOOKUP* r)		// copy constructor
 {
@@ -116,32 +119,31 @@ void DXCC::postRaw(RAWLOOKUP* raw)
 // and you get them all wonderfully hodge-podged in together
 //		YN,H6-7,HT#*
 // and then there's Russia
-//		see later, I changed the Russian strings for something that works
+//		see later, I changed the Russian strings for something that actually works
 
+// BEWARE: this function is self-recursive!!!
 void DXCC::processPrefix(RAWLOOKUP* raw)
 {
 	// Now deal with the more obvious bugs in the table
-	if(raw->prefix[0]==0){										// Spratly Is.
+	if(raw->prefix[0]==0){											// Spratly Island has no callsign prefix
 		delete raw;
 		return;
 	}
-	if(strcmp(raw->prefix, "7")==0)								// Agalega & St. Brandon Is.
-		strcpy_s(raw->prefix, sizeof(RAWLOOKUP::prefix), "3B7");
-	if(strcmp(raw->prefix, "UA-UI1-7,RA-RZ")==0)				// European Russia
+	if(strcmp(raw->prefix, "7")==0)									// Agalega & St. Brandon Is.
+		strcpy_s(raw->prefix, sizeof(RAWLOOKUP::prefix), "3B7");	// I think it's a type of , for -
+
+	// don't get me started on the Russian entries...
+	if(strcmp(raw->prefix, "UA-UI1-7,RA-RZ")==0)					// European Russia
 		strcpy_s(raw->prefix, sizeof(RAWLOOKUP::prefix), "UA-UI1-7,RA-RZ1-7,R1-7");
-	if(strcmp(raw->prefix, "UA-UI8-0,RA-RZ")==0)				// Asiatic Russia
+	if(strcmp(raw->prefix, "UA-UI8-0,RA-RZ")==0)					// Asiatic Russia
 		strcpy_s(raw->prefix, sizeof(RAWLOOKUP::prefix), "UA-UI8-0,RA-RZ8-0,R8-0");
-#if false
-	if(strcmp(raw->prefix, "I")==0)			// debug convenience
-		trap();
-#endif
 
 	// deal with groups
 	if(strchr(raw->prefix, ',')!=nullptr){		// do we have commas?
 		char* q{};
-		// be careful strtok_s will butcher the value we're working on but we copy it out
+		// be careful strtok_s will butcher the value we're working on so we copy it out
 		char* p = _strdup(raw->prefix);
-		char* slice = strtok_s(p, ",", &q);	// first slice
+		char* slice = strtok_s(p, ",", &q);		// first slice
 		while(slice!=nullptr){
 			RAWLOOKUP *r1 = new RAWLOOKUP(raw);
 			strcpy_s(r1->prefix, sizeof(RAWLOOKUP::prefix), slice);
@@ -154,7 +156,7 @@ void DXCC::processPrefix(RAWLOOKUP* raw)
 	}
 	// now deal with the ranges
 	// the problem here is that there aren't any stated rules and you just have to magically infer stuff
-	// eg: XA4-XI4 H6-7  XA-XI PP0-PY0F
+	// eg: XA4-XI4  H6-7  XA-XI  PP0-PY0F
 	char* p = strchr(raw->prefix, '-');					// this may be only the first dash...
 	if(p!=nullptr){										// we have a dash meaning a sequence
 		int n = (int)(p-raw->prefix);					// number of characters before the dash
@@ -181,7 +183,7 @@ void DXCC::processPrefix(RAWLOOKUP* raw)
 		if(from[diff]==0){
 error:		MessageBox(nullptr, raw->prefix, "ARGH!!!", MB_OK);		// simplistic debug
 		}
-		int safety{};
+		int safety{};					// don't loop forever little program, ask for help
 		// I have a problem with Russian Asiatic call signs using the range 8-0 which I assume means 8,9,0
 		// I will just have to frig it out with a special case for n-0
 		bool frig{};
@@ -213,6 +215,7 @@ error:		MessageBox(nullptr, raw->prefix, "ARGH!!!", MB_OK);		// simplistic debug
 bool DXCC::processLookup(const char* p, int lineno)
 {
 	// break up the line into blocks
+	// I AM ASSUMING STRICT COLUMNS AND NO TABS (good at the moment)
 	RAWLOOKUP *raw = new RAWLOOKUP;
 	strncpy_s(raw->prefix,		sizeof(RAWLOOKUP::prefix),		p+4,  19);
 	strncpy_s(raw->entity,		sizeof(RAWLOOKUP::entity),		p+24, 34);
@@ -254,7 +257,7 @@ DXCC::DXCC(bool force)
 skip:
 	// there should now be 276 lines and then a blank line
 	while(fgets(buffer, sizeof(buffer), fh)!=nullptr
-				&& strlen(buffer)>5
+				&& strlen(buffer)>5							// yes it's just arbitrary...
 				&& processLookup(buffer, ++line));
 	
 	fclose(fh);
@@ -275,13 +278,16 @@ skip:
 	}
 #endif
 }
+//-------------------------------------------------------------------------------------------------
+// DFXCC::lookup		find the LOOKUP for a callsign
+//-------------------------------------------------------------------------------------------------
 
 LOOKUP* DXCC::lookup(const char* call)
 {
 	char temp[20];
 	strcpy_s(temp, sizeof(temp), call);			// copy it so we can chop it up
 
-	// we want the longest match
+	// we want the longest match as the table is a bit dodgy in its treatment of overlaps
 	for(int i=(int)strlen(call); i>0; --i){	// index of terminating null
 		if(lookupTable.contains(temp))
 			return &lookupTable[temp];
