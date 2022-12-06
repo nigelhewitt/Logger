@@ -202,6 +202,9 @@ bool ADIF::read(char* &in)
 	}
 
 	// now patch in a country value id we have a match in out table
+	// slightly messy as the first record must have the DXCC and CODE values to ensure the headers go in the right place
+	bool first = true;
+
 	for(ENTRY& e : entries){					// for all entries  (BEWARE: use reference form or we get a copy and the update is lost)
 		ITEM* call = e.find("CALL");			// find the callsign item
 		if(call && call->value){
@@ -212,10 +215,17 @@ bool ADIF::read(char* &in)
 
 				ITEM *cy  = new ITEM("CODE", lu->code);
 				e.items.insert(e.items.begin()+2, *cy);
+				first = false;								// no need for fake records
 			}
+		}
+		if(first){
+			first = false;
+			e.items.insert(e.items.begin()+1, *(new ITEM("DXCC")));
+			e.items.insert(e.items.begin()+2, *(new ITEM("CODE")));
 		}
 	}
 	// patch in the LoTW QSL records
+	first = true;
 	for(ENTRY& e : entries){
 		ITEM* call = e.find("CALL");			// find the callsign item
 		const char* vx = "";
@@ -223,10 +233,15 @@ bool ADIF::read(char* &in)
 			if(lotw->lotwTable.contains(call->value)){
 				// then I ought to check band and time and then write a findnext() in case I've worked him on 3 bands...
 				vx = "QSL";						// I really want a tick but that means using wide characters
-//			ENTRY* xx = &lotw->lotwTable[call->value];
+	//			ENTRY* xx = &lotw->lotwTable[call->value];
 			}
 			ITEM* y = new ITEM("LOTW", vx);
 			e.items.insert(e.items.begin()+3, *y);
+			first = false;
+		}
+		if(first){
+			first = false;
+			e.items.insert(e.items.begin()+3, *(new ITEM("LOTW")));
 		}
 	}
 

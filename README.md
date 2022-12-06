@@ -12,7 +12,7 @@ current log other than four that I don't actually believe in.
 
 The ListView source is based on an old Microsoft example with my tweaks.
 The Unit tests are only for the bits that were better tested offline.
-The filename is saved as a default as it rarely changes so use the Fil menu to change it
+The filename is saved as a default as it rarely changes so use the File menu to change it
 if needed.
 
 This is 'take one' with ADI read, DXCC addition, display and column sorting. I wanted to
