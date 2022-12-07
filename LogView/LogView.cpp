@@ -309,7 +309,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 
 	switch(uMessage){
 	case WM_CREATE:
-		readConfig();
+		if(readConfig())			// first time in
+			DialogBox(hInstance, MAKEINTRESOURCE(IDD_ACCESS), hWnd, Access);
 restart:
 		// we jump to restart if we have uploaded new DXCC or LOTW files
 		// and need to reload the display. We always reload the log file

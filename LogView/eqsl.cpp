@@ -12,7 +12,7 @@
 
 bool EQSL::update()
 {
-	char url[400], pageFile[MAX_PATH], eqslFile[MAX_PATH], user[30], pass[30];
+	char url[400], pageFile[MAX_PATH], user[30], pass[30];
 
 	readConfig("setup", "EQSLuser", "", user, sizeof(user));
 	if(user[0]==0) return false;
@@ -23,9 +23,6 @@ bool EQSL::update()
 	strcpy_s(pageFile, sizeof(pageFile), dataFolder);
 	strcat_s(pageFile, sizeof(pageFile), "\\eQSLpage.html");
 	
-	strcpy_s(eqslFile, sizeof(eqslFile), dataFolder);
-	strcat_s(eqslFile, sizeof(eqslFile), "\\eQSL.adi");
-
 	// slightly convoluted procedure: we supply the requested login and details to get a page
 	// however that is a man-readable and we have to spot the link.
 	_unlink(pageFile);
@@ -34,7 +31,7 @@ bool EQSL::update()
 
 	char *page = LoadFile(pageFile);
 	if(page==nullptr) return false;
-#if _DEBUG
+#ifndef _DEBUG
 	_unlink(pageFile);
 #endif
 	char *p = strstr(page, "Click one of the following to download");
@@ -47,7 +44,7 @@ bool EQSL::update()
 	int i=(int)strlen(url2);
 	while(*p2 && *p2!='"') url2[i++]=*p2++;
 
-	return URLDownloadToFile(nullptr, url2, eqslFile, 0, nullptr)==S_OK;\
+	return URLDownloadToFile(nullptr, url2, eqslFile, 0, nullptr)==S_OK;
 }
 //-------------------------------------------------------------------------------------------------
 // EQSL::load()		get the data and if not present interface with the user
@@ -56,12 +53,12 @@ bool EQSL::update()
 bool EQSL::load(bool force)
 {
 	strcpy_s(eqslFile, sizeof(eqslFile), dataFolder);
-	strcat_s(eqslFile, sizeof(eqslFile), "\\lotw.adi");
+	strcat_s(eqslFile, sizeof(eqslFile), "\\eQSL.adi");
 
 	if(!FileExists(eqslFile) || force){
-		if(force || MessageBox(nullptr, "No EQSL records\nDownload from web?", "", MB_YESNO)==IDYES){
+		if(force || MessageBox(nullptr, "No eQSL records\nDownload from web?", "", MB_YESNO)==IDYES){
 			if(!update()){
-				MessageBox(nullptr, "Nope, reading EQSL from the ARRL didn't work", "", MB_YESNO);
+				MessageBox(nullptr, "Nope, reading eQSL from the web didn't work", "", MB_YESNO);
 				return false;
 			}
 		}

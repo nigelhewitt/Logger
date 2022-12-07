@@ -8,7 +8,7 @@
 extern char dataFolder[];				// current working directory
 
 // read/write the 'ini' file
-void readConfig();
+bool readConfig();
 void readConfig(const char* section, const char* item, const char* def, char* buffer, int cb);
 void writeConfig(const char* section, const char* item, const char* value);
 

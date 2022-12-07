@@ -32,7 +32,7 @@ ITEM* ITEM::read(char* &in)
 	if(*in!='<') return nullptr;				// get the opening '<'
 	++in;
 
-	char c, name[50];							// read the name
+	char c, name[50], type[50]{};				// read the name
 	int i{0};
 	while((c=*in)!=0 && c!=':' && c!='>' && i+1<(int)sizeof(name)){	// stupid cast to remove stupid warning
 		name[i++] = c;
@@ -52,17 +52,28 @@ ITEM* ITEM::read(char* &in)
 	++in;
 
 	int n=0;									// read the character count
-	while((c=*in)!=0 && c!='>'){
+	while((c=*in)!=0 && c!='>' && c!=':'){
 		if(!isdigit(c)) return nullptr;
 		n *= 10;
 		n += c-'0';
 		++in;
 	}
 	if(n>1000) return nullptr;					// zero is legal
-	++in;
+
+	if(c==':'){									// if we have a type...
+		++in;
+		i = 0;
+		while((c=*in)!=0 && c!='>' && i+1<(int)sizeof(type)){	// stupid cast to remove stupid warning
+			type[i++] = c;
+			++in;
+		}
+	}
+	++in;			// step over the '>'
 
 	ITEM* res = new ITEM;
 	res->name = _strdup(name);
+	if(type[0])
+		res->type = _strdup(type);
 	if(n){
 		res->value = new char[n+1];
 		i = 0;
@@ -236,7 +247,7 @@ bool ADIF::read(char* &in)
 			strcpy_s(temp, sizeof(temp), call->value); 
 			while(lotw->lotwTable.contains(temp)){
 				ENTRY* rep = &lotw->lotwTable[temp];
-				if(matchReport(e, rep)){
+				if(matchReport(e, rep, ST_LOTW)){
 					vx = "QSL";
 					break;
 				}
@@ -262,7 +273,7 @@ bool ADIF::read(char* &in)
 			strcpy_s(temp, sizeof(temp), call->value); 
 			while(eqsl->eqslTable.contains(temp)){
 				ENTRY* rep = &eqsl->eqslTable[temp];
-				if(matchReport(e, rep)){
+				if(matchReport(e, rep, ST_EQSL)){
 					vx = "QSL";						// I really want a tick but that means using wide characters
 					break;
 				}
@@ -329,10 +340,21 @@ bool ADIF::write(const char* filename)
 
 inline long iabs(long a){ if(a<0) return -a; return a; }
 
-bool ADIF::matchReport(ENTRY& me, ENTRY* them)
+enum ST { ST_LOTW, ST_EQSL };
+
+bool ADIF::matchReport(ENTRY& me, ENTRY* them, ST st)
 {
+	const char* qslReceived{};
+	switch(st){
+	case ST_LOTW:
+		qslReceived = "QSL_RCVD";
+		break;
+	case ST_EQSL:
+		qslReceived = "QSL_SENT";
+		break;
+	}
 	ITEM* i1;
-	ITEM* i2 = them->find("QSL_RCVD");									// QSL received?
+	ITEM* i2 = them->find(qslReceived);									// QSL received?
 	if(i2==nullptr || _stricmp(i2->value, "Y")!=0) return false;		// it is only my record
 
 	i1 = me.find("BAND");

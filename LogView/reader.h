@@ -20,6 +20,7 @@ public:
 	}
 public:
 	char *name{};
+	char *type{};
 	char *value{};
 
 public:
@@ -65,7 +66,9 @@ public:
 	bool write(const char* filename);				// write to a file
 
 public:
-	bool matchReport(ENTRY& me, ENTRY* them);		// do the two reports match?
+	enum ST { ST_LOTW, ST_EQSL };						// who's system are we matching?
+	bool matchReport(ENTRY& me, ENTRY* them, ST st);	// do the two reports match?
+
 	char* sortCol{};								// name of column currently being sorted
 	bool  reverse{};								// use reverse sort
 	static bool cmp(const ENTRY&, const ENTRY&);	// I'm sure I can work round having a static with a lambda......

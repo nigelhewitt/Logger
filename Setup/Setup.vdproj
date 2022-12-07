@@ -39,6 +39,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_39E3715A25364B0DA68507C730779D4C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_3DFFE00F80DADC4D15E9568E52EC0228"
         "OwnerKey" = "8:_90A86391A9AD49D08D3FCE2EC5846734"
         "MsmSig" = "8:_UNDEFINED"
@@ -236,6 +242,26 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_39E3715A25364B0DA68507C730779D4C"
+            {
+            "SourcePath" = "8:..\\LogView\\LogView.ico"
+            "TargetName" = "8:LogView.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_D6A9F24DA7BC492AB5F34DB3B9BE6D69"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3DFFE00F80DADC4D15E9568E52EC0228"
@@ -495,7 +521,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:LogView"
         "ProductCode" = "8:{3FD2D07F-9A7A-4C22-9A90-E41568632549}"
-        "PackageCode" = "8:{619202FD-8F56-4AF7-AA37-03FAAF064C62}"
+        "PackageCode" = "8:{23371EC6-1C23-49B2-BDEC-CFBC8E260B62}"
         "UpgradeCode" = "8:{69573DF2-ED50-491E-AB35-1F50EA58CB19}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -615,6 +641,34 @@
         }
         "Shortcut"
         {
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_23DD33BCBAB140CD9A903DEEBCDDC132"
+            {
+            "Name" = "8:LogView"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_90A86391A9AD49D08D3FCE2EC5846734"
+            "Folder" = "8:_D0BEF880470F4BD797B9319E242307EE"
+            "WorkingFolder" = "8:_D6A9F24DA7BC492AB5F34DB3B9BE6D69"
+            "Icon" = "8:_39E3715A25364B0DA68507C730779D4C"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_551FDA59BEEB434192BA4AB65F455723"
+            {
+            "Name" = "8:LogView"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_90A86391A9AD49D08D3FCE2EC5846734"
+            "Folder" = "8:_C96437F75BDD42F1BF3F8ECAB777CBF5"
+            "WorkingFolder" = "8:_D6A9F24DA7BC492AB5F34DB3B9BE6D69"
+            "Icon" = "8:_39E3715A25364B0DA68507C730779D4C"
+            "Feature" = "8:"
+            }
         }
         "UserInterface"
         {
@@ -1016,7 +1070,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_90A86391A9AD49D08D3FCE2EC5846734"
             {
-            "SourcePath" = "8:..\\x64\\Release\\LogView.exe"
+            "SourcePath" = "8:..\\x64\\Debug\\LogView.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_D6A9F24DA7BC492AB5F34DB3B9BE6D69"

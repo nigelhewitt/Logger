@@ -20,7 +20,11 @@ archive the country code source safely as it took a while to derive and test. Al
 analysis stuff will come later and probably not be useful to anybody else.
 
 I have added code to consult my LoTW and eQSL logs to mark the 'confirmed' ones and as
-these are the services I use.
+these are the services I use. When the system starts it will ask you for the usernames and
+passwords for these services. If you leave the usernames blank it will not use them.
+
+The files it downloads and the configuration information are saved in the
+C:\Users\your_name\AppData\Roaming\NigSoft\LogView\ folder so it gets backed up.
 
 Please don't tell me that you wouldn't have done it this way as me laughing at you may
 cause offence. I've been programming since the early 70s and I know I'm not cutting edge
@@ -28,15 +32,3 @@ and I like it that way. Alternatively cut and stick what you want. I had hoped t
 some example code for an ADI file reader on line but couldn't find one I liked so here is
 my offering. I will keep updating it while I'm tweaking it and when the systems change or
 I want more information.
-
-To use passworded services it needs line in the configuration file. It is called
-config.edc and is a simple Ascii 'ini' file eg:
-```
-[setup]
-LOTWuser=a user name
-LOTWpassword=a password
-eSQLuser=another username
-eQSLpassword=and another password
-```
-
-the system will add other stuff as needed.

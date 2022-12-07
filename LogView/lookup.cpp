@@ -11,14 +11,17 @@
 // and just read it
 // If only it were that simple
 
-const char* szURL		 = "http://www.arrl.org/files/file/DXCC/2022_Current_Deleted.txt";
-const char* szLookupFile = "dxcc.txt";
+const char* szURL = "http://www.arrl.org/files/file/DXCC/2022_Current_Deleted.txt";
+char szLookupFile[MAX_PATH]{};
 
 // A routine to ensure we have the DXCC definitions file. Since it almost never changes
 // I rely on the locally cached version until told to do otherwise
 
 bool DXCC::fetchARRL(bool force)
 {
+	strcpy_s(szLookupFile, sizeof(szLookupFile), dataFolder);
+	strcat_s(szLookupFile, sizeof(szLookupFile), "\\dxcc.txt");
+
 	bool exists = FileExists(szLookupFile);
 	if(!force && exists) return true;			// we have it already
 	

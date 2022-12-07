@@ -11,9 +11,10 @@
 char dataFolder[MAX_PATH]{};
 static char iniFile[MAX_PATH]{};
 
-void readConfig()
+bool readConfig()				// returns true if it set things up new
 {
 	if(iniFile[0]==0){
+		bool newLoad = false;
 		PWSTR appdata{};
 		if(SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_CREATE, nullptr, &appdata) == S_OK){
 		    wcstombs_s(nullptr, dataFolder, sizeof(dataFolder), appdata, MAX_PATH);
@@ -27,15 +28,19 @@ void readConfig()
 			if(!FileExists(dataFolder))
 				exit(1);
 			strcat_s(dataFolder, sizeof(dataFolder), "\\LogView");
-			if(!FileExists(dataFolder))
+			if(!FileExists(dataFolder)){
+				newLoad = true;
 				(void)_mkdir(dataFolder);
+			}
 		}
 		else
 			exit(99);
 
 		strcpy_s(iniFile, sizeof(iniFile), dataFolder);
 		strcat_s(iniFile, sizeof(iniFile), "\\config.edc");
+		return newLoad;
 	}
+	return false;
 }
 void readConfig(const char* section, const char* item, const char* def, char* buffer, int cb)
 {
@@ -114,14 +119,16 @@ time_t unpackTime(const char* text)
 {
 	// input is "20221206190425"
 	//           yyyymmddhhmmss
-	if(strlen(text)!=14) return 0;
+	size_t n = strlen(text);
+	if(n!=14 && n!=12) return 0;
 	tm t{};
 	t.tm_year = atou(text,    4) - 1900;	// years since 1900
 	t.tm_mon  = atou(text+4,  2) - 1;		// months since January (0-11)
 	t.tm_mday = atou(text+6,  2);			// day of the month (1-31)
 	t.tm_hour = atou(text+8,  2);			// hours
 	t.tm_min  = atou(text+10, 2);			// minutes
-	t.tm_sec  = atou(text+12, 2);			// seconds
+	if(text[12])							// does that come with or without seconds?
+		t.tm_sec  = atou(text+12, 2);		// seconds
 
 	return mktime(&t);
 }
