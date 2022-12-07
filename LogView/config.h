@@ -5,7 +5,7 @@
 
 // generally the usual collection of stuff that has no obvious other place to live
 
-extern char cwd[];				// current working directory
+extern char dataFolder[];				// current working directory
 
 // read/write the 'ini' file
 void readConfig();

@@ -29,6 +29,7 @@ bool LOTW::update()
 	strcpy_s(url, sizeof(url),  "https://lotw.arrl.org/lotwuser/lotwreport.adi");
 	char login[20], password[20];
 	readConfig("setup", "LOTWuser", "", login, sizeof(login));
+	if(login[0]==0) return false;
 	readConfig("setup", "LOTWpassword", "", password, sizeof(password));
 	if(login[0]==0 || password[0]==0) return false;
 	addArg("login", login);
@@ -39,7 +40,7 @@ bool LOTW::update()
 	addArg("qso_qsl", "yes");				// only ask for the QSLed ones
 
 	// make the target file name
-	strcpy_s(lotwFile, sizeof(lotwFile), cwd);
+	strcpy_s(lotwFile, sizeof(lotwFile), dataFolder);
 	strcat_s(lotwFile, sizeof(lotwFile), "\\lotw.adi");
 
 	// and do the 'read from internet' process
@@ -52,7 +53,7 @@ bool LOTW::update()
 
 bool LOTW::load(bool force)
 {
-	strcpy_s(lotwFile, sizeof(lotwFile), cwd);
+	strcpy_s(lotwFile, sizeof(lotwFile), dataFolder);
 	strcat_s(lotwFile, sizeof(lotwFile), "\\lotw.adi");
 
 	if(!FileExists(lotwFile) || force){

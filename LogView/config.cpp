@@ -8,14 +8,32 @@
 // ini file stuff
 //-------------------------------------------------------------------------------------------------
 
-char cwd[MAX_PATH]{};
+char dataFolder[MAX_PATH]{};
 static char iniFile[MAX_PATH]{};
 
 void readConfig()
 {
 	if(iniFile[0]==0){
-		(void)_getcwd(cwd, sizeof(cwd));
-		strcpy_s(iniFile, sizeof(iniFile), cwd);
+		PWSTR appdata{};
+		if(SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_CREATE, nullptr, &appdata) == S_OK){
+		    wcstombs_s(nullptr, dataFolder, sizeof(dataFolder), appdata, MAX_PATH);
+
+			if(!FileExists(dataFolder))
+				exit(1);
+			strcat_s(dataFolder, sizeof(dataFolder), "\\Nigsoft");
+			if(!FileExists(dataFolder))
+				(void)_mkdir(dataFolder);
+
+			if(!FileExists(dataFolder))
+				exit(1);
+			strcat_s(dataFolder, sizeof(dataFolder), "\\LogView");
+			if(!FileExists(dataFolder))
+				(void)_mkdir(dataFolder);
+		}
+		else
+			exit(99);
+
+		strcpy_s(iniFile, sizeof(iniFile), dataFolder);
 		strcat_s(iniFile, sizeof(iniFile), "\\config.edc");
 	}
 }

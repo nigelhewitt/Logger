@@ -24,7 +24,7 @@ bool DXCC::fetchARRL(bool force)
 	
 	if(!force){									// computers should not ask silly questions if given orders
 		char temp[500];
-		sprintf_s(temp, sizeof(temp), "Unable to locate file %s in folder %s\nDownload from internet?", szLookupFile, cwd);
+		sprintf_s(temp, sizeof(temp), "Unable to locate file %s in folder %s\nDownload from internet?", szLookupFile, dataFolder);
 
 		if(MessageBoxA(nullptr, temp, "Callsign to DXCC country name table", MB_YESNO)!=IDYES)
 			return false;

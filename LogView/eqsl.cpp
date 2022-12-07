@@ -12,14 +12,18 @@
 
 bool EQSL::update()
 {
-	char url[400], pageFile[MAX_PATH], eqslFile[MAX_PATH];
-	
-	sprintf_s(url, sizeof(url), "https://www.eQSL.cc/qslcard/DownloadInBox.cfm?UserName=%s&Password=%s&RcvdSince=20050201", "G8JFT", "Born76Free");
+	char url[400], pageFile[MAX_PATH], eqslFile[MAX_PATH], user[30], pass[30];
 
-	strcpy_s(pageFile, sizeof(pageFile), cwd);
+	readConfig("setup", "EQSLuser", "", user, sizeof(user));
+	if(user[0]==0) return false;
+	readConfig("setup", "EQSLpassword", "", pass, sizeof(pass));
+
+	sprintf_s(url, sizeof(url), "https://www.eQSL.cc/qslcard/DownloadInBox.cfm?UserName=%s&Password=%s&RcvdSince=20050201", user, pass);
+
+	strcpy_s(pageFile, sizeof(pageFile), dataFolder);
 	strcat_s(pageFile, sizeof(pageFile), "\\eQSLpage.html");
 	
-	strcpy_s(eqslFile, sizeof(eqslFile), cwd);
+	strcpy_s(eqslFile, sizeof(eqslFile), dataFolder);
 	strcat_s(eqslFile, sizeof(eqslFile), "\\eQSL.adi");
 
 	// slightly convoluted procedure: we supply the requested login and details to get a page
@@ -51,7 +55,7 @@ bool EQSL::update()
 
 bool EQSL::load(bool force)
 {
-	strcpy_s(eqslFile, sizeof(eqslFile), cwd);
+	strcpy_s(eqslFile, sizeof(eqslFile), dataFolder);
 	strcat_s(eqslFile, sizeof(eqslFile), "\\lotw.adi");
 
 	if(!FileExists(eqslFile) || force){

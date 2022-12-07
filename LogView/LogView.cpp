@@ -12,7 +12,9 @@ DXCC* dxcc{};
 LOTW* lotw{};
 EQSL* eqsl{};
 
-// Message handler for the 'about' box.
+//-------------------------------------------------------------------------------------------------
+// Message handler for the 'about' dialog.
+//-------------------------------------------------------------------------------------------------
 INT_PTR CALLBACK About(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
 {
 	switch(uMessage){
@@ -31,15 +33,61 @@ INT_PTR CALLBACK About(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
 	return (INT_PTR)FALSE;
 }
 
+//-------------------------------------------------------------------------------------------------
+// Message handler for the 'access' dialog.
+//-------------------------------------------------------------------------------------------------
+
+INT_PTR CALLBACK Access(HWND hDlg, UINT uMessage, WPARAM wParam, LPARAM lParam)
+{
+	char temp[50];
+	switch(uMessage){
+	case WM_INITDIALOG:
+		readConfig("setup", "LOTWuser", "", temp, sizeof(temp));
+		SetDlgItemText(hDlg, IDC_USERNAME1, temp);
+		readConfig("setup", "LOTWpassword", "", temp, sizeof(temp));
+		SetDlgItemText(hDlg, IDC_PASSWORD1, temp);
+		readConfig("setup", "EQSLuser", "", temp, sizeof(temp));
+		SetDlgItemText(hDlg, IDC_USERNAME2, temp);
+		readConfig("setup", "EQSLpassword", "", temp, sizeof(temp));
+		SetDlgItemText(hDlg, IDC_PASSWORD2, temp);
+
+		return (INT_PTR)TRUE;
+
+	case WM_COMMAND:
+		switch LOWORD(wParam) {
+		case IDOK:
+			GetDlgItemText(hDlg, IDC_USERNAME1, temp, sizeof(temp));
+			writeConfig("setup", "LOTWuser", temp);
+			GetDlgItemText(hDlg, IDC_PASSWORD1, temp, sizeof(temp));
+			writeConfig("setup", "LOTWpassword", temp);
+			GetDlgItemText(hDlg, IDC_USERNAME2, temp, sizeof(temp));
+			writeConfig("setup", "EQSLuser", temp);
+			GetDlgItemText(hDlg, IDC_PASSWORD2, temp, sizeof(temp));
+			writeConfig("setup", "EQSLpassword", temp);
+		case IDCANCEL:
+			EndDialog(hDlg, LOWORD(wParam));
+			return (INT_PTR)TRUE;
+		}
+		break;
+	}
+	return (INT_PTR)FALSE;
+}
+
+//-------------------------------------------------------------------------------------------------
 // make the ListView track the size of the enclosing window
 // used in create and WM_SIZE
+//-------------------------------------------------------------------------------------------------
+
 void ResizeListView(HWND hwndListView, HWND hwndParent)
 {
 	RECT rc;
 	GetClientRect(hwndParent, &rc);
 	MoveWindow(hwndListView, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, TRUE);
 }
+//-------------------------------------------------------------------------------------------------
 // create the ListView control
+//-------------------------------------------------------------------------------------------------
+
 HWND CreateListView(HINSTANCE hInstance, HWND hwndParent)
 {
 	DWORD dwStyle =   WS_TABSTOP | WS_CHILD | WS_BORDER | WS_VISIBLE | LVS_AUTOARRANGE | LVS_REPORT |  LVS_OWNERDATA;
@@ -346,6 +394,10 @@ nFile:			if(!GetFile(hWnd, "Give name of log-file to open", logFile, sizeof(logF
 		case IDM_LIST:
 			SwitchView(hView, LVS_LIST);
 			break;
+
+		case IDM_ACCESS:
+			DialogBox(hInstance, MAKEINTRESOURCE(IDD_ACCESS), hWnd, Access);
+			return 0;
 
 		case IDM_REPORT:
 			SwitchView(hView, LVS_REPORT);
