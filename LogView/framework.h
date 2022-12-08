@@ -33,6 +33,7 @@
 #include "config.h"
 #include "lotw.h"
 #include "eqsl.h"
+#include "ListViewChild.h"
 #include "LogView.h"
 
 // modules for the linker to include

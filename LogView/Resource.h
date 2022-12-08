@@ -16,6 +16,10 @@
 #define IDM_RELOAD                      111
 #define IDM_NEW                         112
 #define IDM_ACCESS						113
+#define IDM_ARRANGEICONS				114
+#define IDM_CASCADE						115
+#define IDM_TILEVERTICAL				116
+#define IDM_TILEHORIZONTAL				117
 #define IDI_MAINICON                    200
 #define IDM_MAIN_MENU                   201
 #define IDM_CONTEXT_MENU                202
@@ -24,6 +28,8 @@
 #define IDM_LIST                        205
 #define IDM_REPORT                      206
 #define IDD_ACCESS                      207
+#define IDM_WINDOWCHILD					300		// first, incremented for more
+
 #define IDC_USERNAME1                   1000
 #define IDC_USERNAME2                   1001
 #define IDC_PASSWORD1                   1002

@@ -1,12 +1,13 @@
 #include "pch.h"
 #include "CppUnitTest.h"
 
-// don't forget to do the 'Add reference' thing to ADIFlog
+// Don't forget to do the 'Add reference' thing to ADIFlog
 #include "../LogView/reader.cpp"
 #include "../LogView/lookup.cpp"
 #include "../LogView/LogView.cpp"
 #include "../LogView/config.cpp"
 #include "../LogView/lotw.cpp"
+#include "../LogView/ListViewChild.cpp"
 #include "../LogView/eqsl.cpp"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;

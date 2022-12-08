@@ -131,6 +131,7 @@
   <ItemGroup>
     <ClInclude Include="config.h" />
     <ClInclude Include="eqsl.h" />
+    <ClInclude Include="ListViewChild.h" />
     <ClInclude Include="LogView.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="lookup.h" />
@@ -149,6 +150,7 @@
   <ItemGroup>
     <ClCompile Include="config.cpp" />
     <ClCompile Include="eqsl.cpp" />
+    <ClCompile Include="ListViewChild.cpp" />
     <ClCompile Include="LogView.cpp" />
     <ClCompile Include="lookup.cpp" />
     <ClCompile Include="lotw.cpp" />
