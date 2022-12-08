@@ -134,7 +134,7 @@
     <ClInclude Include="ListViewChild.h" />
     <ClInclude Include="LogView.h" />
     <ClInclude Include="framework.h" />
-    <ClInclude Include="lookup.h" />
+    <ClInclude Include="dxcc.h" />
     <ClInclude Include="lotw.h" />
     <ClInclude Include="reader.h" />
     <ClInclude Include="Resource.h" />
@@ -152,7 +152,7 @@
     <ClCompile Include="eqsl.cpp" />
     <ClCompile Include="ListViewChild.cpp" />
     <ClCompile Include="LogView.cpp" />
-    <ClCompile Include="lookup.cpp" />
+    <ClCompile Include="dxcc.cpp" />
     <ClCompile Include="lotw.cpp" />
     <ClCompile Include="reader.cpp" />
   </ItemGroup>

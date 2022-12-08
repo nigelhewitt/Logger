@@ -3,7 +3,7 @@
 // LogView.h
 //-------------------------------------------------------------------------------------------------
 
-// The basic header for the LogView.cpp
+// Header for the LogView.cpp
 
 class DXCC;				// protect the forward references
 class ADIF;

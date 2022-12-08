@@ -355,7 +355,7 @@ nFile:			if(!GetFile(hWnd, "Give name of log-file to open", logFile, sizeof(logF
 
 		hView = CreateListView(hInstance, hWnd);
 		InitListView(hView);
-		PostMessage(hWnd, WM_SYSCOMMAND, SC_MAXIMIZE, 0);
+		PostMessage(hWnd, WM_SYSCOMMAND, SC_MAXIMIZE, 0);	// to arrive after the create is finished
 		UpdateWindow(hWnd);
 		break;
 

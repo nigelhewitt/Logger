@@ -3,7 +3,7 @@
 
 // Don't forget to do the 'Add reference' thing to ADIFlog
 #include "../LogView/reader.cpp"
-#include "../LogView/lookup.cpp"
+#include "../LogView/dxcc.cpp"
 #include "../LogView/LogView.cpp"
 #include "../LogView/config.cpp"
 #include "../LogView/lotw.cpp"
@@ -28,15 +28,16 @@ namespace UnitTest1
 		// write items
 		TEST_METHOD(TestMethod2)
 		{
-			char temp[200]="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", *p=temp;
+			char temp[200]="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+			char *p = temp;
 			Assert::IsTrue(ITEM::write(p, "EOR"));
 			Assert::IsTrue(p-temp==6);
 			Assert::IsTrue(strncmp(temp, "<EOR>\n", 6)==0);
-			p=temp;
+			p = temp;
 			Assert::IsTrue(ITEM::write(p, "TEST", "Value"));
 			Assert::IsTrue(p-temp==14);
 			Assert::IsTrue(strncmp(temp, "<TEST:5>Value ", 14)==0);
-			p=temp;
+			p = temp;
 			Assert::IsTrue(ITEM::write(p, "LF", "With linefeed", true));
 			Assert::IsTrue(p-temp==21);
 			Assert::IsTrue(strncmp(temp, "<LF:13>With linefeed\n", 21)==0);

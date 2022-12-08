@@ -1,5 +1,5 @@
 //-------------------------------------------------------------------------------------------------
-// LogView.cpp : Defines the entry point and Frame window for the application.
+// LogView.cpp : Defines the entry point and the Frame window for the application.
 //-------------------------------------------------------------------------------------------------
 
 #include "framework.h"

@@ -30,7 +30,7 @@
     <ClInclude Include="reader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="lookup.h">
+    <ClInclude Include="dxcc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="config.h">
@@ -63,7 +63,7 @@
     <ClCompile Include="LogView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lookup.cpp">
+    <ClCompile Include="dxcc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="reader.cpp">

@@ -1,6 +1,6 @@
 #pragma once
 //-------------------------------------------------------------------------------------------------
-// framework.h : the file to include the includes
+// framework.h :  the file to include the includes
 //-------------------------------------------------------------------------------------------------
 
 // set the SDK version we want (default windows)
@@ -29,7 +29,7 @@
 // Project specific header file
 #include "resource.h"
 #include "reader.h"
-#include "lookup.h"
+#include "dxcc.h"
 #include "config.h"
 #include "lotw.h"
 #include "eqsl.h"

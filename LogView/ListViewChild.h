@@ -18,10 +18,11 @@ public:
 	static LRESULT CALLBACK WndProcStatic(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam);
 	LRESULT WndProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam);
 private:
+	// Windows stuff
 	void RegisterClass();
 	HWND AddChild(const char* title, void* data);
 	HWND CreateListView(HINSTANCE hInstance, HWND hwndParent);
-
+	// ListView stuff
 	void ResizeListView(HWND hwndListView, HWND hwndParent);
 	void PositionHeader(HWND hwndListView);
 	void InsertListViewItems(HWND hwndListView);
