@@ -12,7 +12,7 @@ class LISTVIEWCHILD;		// protect forward reference
 
 // !!!!!!!!!!!!!!!!!!!!! write is unfinished and untested !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-class ITEM {			// an individual ADIF item   eg:  <CALL:5>G8JFT
+class ITEM {			// an individual ADIF item   eg:  <CALL:5:T>G8JFT
 public:
 	ITEM(){}			// use default initialisers
 	ITEM(const char* n, const char* v = nullptr){

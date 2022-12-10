@@ -11,22 +11,22 @@
 #include <windows.h>
 #include <commctrl.h>
 #include <commdlg.h>
-#include <shlobj_core.h>
 
 // C RunTime Header Files
 #include <cstdio>
 #include <cstdlib>
 #include <urlmon.h>
+#include <time.h>
+#include <direct.h>
+#include <shlobj_core.h>
 
 // std:: library header files
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include <time.h>
-#include <direct.h>
 #include <algorithm>
 
-// Project specific header file
+// Project specific header files
 #include "resource.h"
 #include "reader.h"
 #include "dxcc.h"

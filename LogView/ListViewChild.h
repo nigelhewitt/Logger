@@ -9,24 +9,27 @@ extern int nChildren;
 
 class LISTVIEWCHILD {
 public:
-	LISTVIEWCHILD(void *data=0){
+	LISTVIEWCHILD(const char *fname=0){
 		RegisterClass();
-		AddChild("LogView", data);
+		AddChild("LogView", fname);
 	}
 public:
 	static bool once;
 	static LISTVIEWCHILD* underCreation;
 	HWND hView{};
 	ADIF* logbook{};
+
 	// windows interface
 	// put the 'this' pointer into the window data area
 	static LRESULT CALLBACK WndProcStatic(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam);
 	LRESULT WndProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam);
+
 private:
 	// Windows stuff
 	void RegisterClass();
-	HWND AddChild(const char* title, void* data);
+	HWND AddChild(const char* title, const char* data);
 	HWND CreateListView(HINSTANCE hInstance, HWND hwndParent);
+	
 	// ListView stuff
 	void ResizeListView(HWND hwndListView, HWND hwndParent);
 	void PositionHeader(HWND hwndListView);

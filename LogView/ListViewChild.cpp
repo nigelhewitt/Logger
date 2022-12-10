@@ -41,7 +41,7 @@ void LISTVIEWCHILD::RegisterClass()
 // add a new child Window
 //=====================================================================================================
 
-HWND LISTVIEWCHILD::AddChild(const char* title, void* data)
+HWND LISTVIEWCHILD::AddChild(const char* title, const char* data)
 {
 	if(IsIconic(hFrame)){
 		ShowWindow(hFrame, SW_RESTORE);
@@ -227,8 +227,28 @@ LRESULT LISTVIEWCHILD::ListViewNotify(HWND hWnd, LPARAM lParam)
 				}
 				ENTRY* e = &logbook->entries[lpdi->item.iItem];				// find entry for row
 				ITEM*  i = e->find(col);									// find item for column
-				if(i  && i->value)
-					strcpy_s(lpdi->item.pszText, lpdi->item.cchTextMax, i->value);
+				if(i  && i->value){
+					if(strstr(col, "DATE")){
+						char temp[20];
+						for(int n=0, m=0; n<9; ++n){
+							temp[m++] = i->value[n];
+							if(n==3 || n==5)
+								temp[m++]='-';
+						}
+						strcpy_s(lpdi->item.pszText, lpdi->item.cchTextMax, temp);
+					}
+					else if(strstr(col, "TIME")){
+						char temp[20];
+						for(int n=0, m=0; n<7; ++n){
+							temp[m++]= i->value[n];
+							if(n==1 || n==3)
+								temp[m++]=':';
+						}
+						strcpy_s(lpdi->item.pszText, lpdi->item.cchTextMax, temp);
+					}
+					else
+						strcpy_s(lpdi->item.pszText, lpdi->item.cchTextMax, i->value);
+				}
 			}
 			return 0;
 		}

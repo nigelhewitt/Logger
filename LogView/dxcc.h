@@ -12,7 +12,7 @@ struct LOOKUP {					// this is the item saved in the unordered_map (hash table)
 	const char* cq{};
 	const char* code{};
 };
-struct RAWLOOKUP {				// this is the stuff to make a LOOKUP from but copyable
+struct RAWLOOKUP {				// this is the stuff to make a LOOKUP from but easily copyable
 	char prefix[30]{};			// high speed copy helps loading speed
 	char entity[35]{};
 	char continent[6]{};

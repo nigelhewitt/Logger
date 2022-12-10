@@ -3,6 +3,8 @@
 // eqsl.h
 //-------------------------------------------------------------------------------------------------
 
+// read and unpack an online log from eQSL
+
 class EQSL {
 public:
 	bool update();										// read the data

@@ -292,7 +292,7 @@ bool ADIF::read(char* &in)
 	// now prepare the list of column headers
 	titles.clear();
 	for(ENTRY e : entries)						// for all entries
-		for(ITEM i : e.items){					// for all item in an entry
+		for(ITEM &i : e.items){					// for all item in an entry
 			int n = i.value!=nullptr ? (int)strlen(i.value) : 0;	// length of the value
 			// first check for new column names
 			for(COL& c : titles)				// check the list of titles (use & so we get the real thing not a copy)
