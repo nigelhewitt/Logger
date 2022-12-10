@@ -53,10 +53,10 @@ void  writeConfig(const char* section, const char* item, const char* value)
 	WritePrivateProfileString(section, item, value, iniFile);
 }
 //-------------------------------------------------------------------------------------------------
-// GetFile()	I use the older style FileOpen dialog just because it isn't as smart as the new one
+// GetFileName()	I use the older style FileOpen dialog just because it isn't as smart as the new one
 //-------------------------------------------------------------------------------------------------
 
-bool GetFile(HWND hParent, const char* caption, char* file, int cb)
+bool GetFileName(HWND hParent, const char* caption, char* file, int cb)
 {
 	OPENFILENAME ofn;
 	char szDirName[MAX_PATH+10]{}, szFileTitle[MAX_PATH+10]{};

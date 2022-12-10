@@ -13,7 +13,7 @@ void readConfig(const char* section, const char* item, const char* def, char* bu
 void writeConfig(const char* section, const char* item, const char* value);
 
 // run the  common control 'select file name' dialog
-bool GetFile(HWND hParent, const char* caption, char* file, int cb);
+bool GetFileName(HWND hParent, const char* caption, char* file, int cb);
 
 // read a file into a char[]
 char* LoadFile(const char* fname);

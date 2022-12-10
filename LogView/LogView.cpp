@@ -7,6 +7,7 @@
 // Global Variables:
 HINSTANCE hInstance{};				// current instance
 HWND  hFrame{}, hClient{};
+int nChildren{};					// number of MDI windows
 LISTVIEWCHILD *list1{};
 ADIF* logbook{};
 DXCC* dxcc{};
@@ -133,7 +134,7 @@ LRESULT CALLBACK FrameWndProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lP
 		ccs.idFirstChild = IDM_WINDOWCHILD;
 
 		// Create the MDI client window. (notice the 'magic number' in the HMENU field)
-		hClient = CreateWindowEx(0, "MDICLIENT", nullptr,
+		hClient = CreateWindowEx(WS_EX_CLIENTEDGE, "MDICLIENT", nullptr,
 							WS_CHILD | WS_CLIPCHILDREN | WS_VSCROLL | WS_HSCROLL,
 							0, 0, 0, 0, hWnd, (HMENU)0xCAC, hInstance, (LPSTR)&ccs);
 		if(!hClient){
@@ -145,7 +146,7 @@ LRESULT CALLBACK FrameWndProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lP
 		// on the default tile or ask for a new file selection
 		new LISTVIEWCHILD;
 		ShowWindow(hClient, SW_SHOW);
-		break;
+		return 0; // break;
 	}
 	case WM_COMMAND:
 		// Parse the menu selections:
@@ -185,7 +186,11 @@ LRESULT CALLBACK FrameWndProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lP
 			SendMessage(hClient, WM_MDITILE, MDITILE_HORIZONTAL | MDITILE_SKIPDISABLED, 0);
 			return 0;
 
-		case IDM_NEW:				// select a new file
+		case IDM_NEW:				// open a new file
+			new LISTVIEWCHILD;
+			return 0;
+
+		case IDM_CHANGEDEFAULT:		// select a new default file
 		case IDM_DXCC:				// reload the country data
 		case IDM_LOTW:				// reload the worked/QSLed lists
 		case IDM_EQSL:				// reload the worked/QSLed lists
@@ -221,6 +226,7 @@ int WINAPI WinMain(	_In_ HINSTANCE		hInstance,
 					_In_ LPSTR			lpCmdLine,
 					_In_ int			nCmdShow)
 {
+	::hInstance = hInstance;			// Store instance handle in our global variable
 	InitializeCriticalSection(&CriticalSection);
 
 	// Register the Frame Window Class
@@ -240,8 +246,6 @@ int WINAPI WinMain(	_In_ HINSTANCE		hInstance,
 	RegisterClassEx(&wcex);
 
 	// Perform application initialization:
-	::hInstance = hInstance;			// Store instance handle in our global variable
-
 	INITCOMMONCONTROLSEX icex;			// Structure for control initialization.
 	icex.dwICC = ICC_LISTVIEW_CLASSES;
 	InitCommonControlsEx(&icex);

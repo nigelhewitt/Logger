@@ -390,8 +390,8 @@ bool ADIF::compare(const ENTRY &e1, const ENTRY &e2)
 	// returns true if the first argument is less than (before) the second
 	ITEM* i1 = ((ENTRY&)e1).find(sortCol);
 	ITEM* i2 = ((ENTRY&)e2).find(sortCol);
-	if(i1==nullptr) return false;						// no value goes at the end of the file
-	if(i2==nullptr) return true;
+	if(i1==nullptr || i1->value==nullptr) return false;						// no value goes at the end of the file
+	if(i2==nullptr || i2->value==nullptr) return true;
 	int res = strcmp(i1->value, i2->value);
 	if(reverse) return res>0;
 	return res<0;

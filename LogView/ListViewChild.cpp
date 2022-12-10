@@ -23,7 +23,7 @@ void LISTVIEWCHILD::RegisterClass()
 		wcex.style			= CS_HREDRAW | CS_VREDRAW;
 		wcex.lpfnWndProc	= LISTVIEWCHILD::WndProcStatic;
 		wcex.cbClsExtra		= 0;
-		wcex.cbWndExtra		= sizeof(void*);			// put the 'this' pointer here
+		wcex.cbWndExtra		= sizeof(void*);			// space to put the 'this' pointer
 		wcex.hInstance		= hInstance;
 		wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDC_LogView));
 		wcex.hCursor		= LoadCursor(nullptr, IDC_ARROW);
@@ -57,7 +57,7 @@ HWND LISTVIEWCHILD::AddChild(const char* title, void* data)
 	mcs.y		= CW_USEDEFAULT;
 	mcs.cx		= CW_USEDEFAULT;
 	mcs.cy		= CW_USEDEFAULT;
-	mcs.style	= 0;
+	mcs.style	= 0; //WS_HSCROLL | WS_VSCROLL;
 	mcs.lParam	= (LPARAM)data;
 
 	EnterCriticalSection(&CriticalSection);
@@ -69,11 +69,16 @@ HWND LISTVIEWCHILD::AddChild(const char* title, void* data)
 		error();
 		exit(99);
 	}
-	SetWindowLongPtr(hChild, 0, (LONG_PTR)this);
+	SetWindowLongPtr(hChild, WW_THIS, (LONG_PTR)this);
 
 	LeaveCriticalSection(&CriticalSection);
 
 	SetFocus(hChild);
+
+	if(++nChildren==1)
+		PostMessage(hClient, WM_MDITILE, MDITILE_VERTICAL | MDITILE_SKIPDISABLED, 0);
+	else
+		PostMessage(hClient, WM_MDICASCADE, MDITILE_SKIPDISABLED, 0);
 
 	return hChild;
 }
@@ -311,7 +316,7 @@ BOOL LISTVIEWCHILD::DoContextMenu(HWND hWnd, WPARAM wParam, LPARAM lParam)
 // wrap a static member round it so we match the Windows specification for a  WndProc
 LRESULT CALLBACK LISTVIEWCHILD::WndProcStatic(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 {
-	LISTVIEWCHILD *me = (LISTVIEWCHILD*)GetWindowLongPtr(hWnd, 0);
+	LISTVIEWCHILD *me = (LISTVIEWCHILD*)GetWindowLongPtr(hWnd, WW_THIS);
 	if(me==nullptr) me = underCreation;
 	return me->WndProc(hWnd, uMessage, wParam, lParam);
 }
@@ -325,7 +330,7 @@ LRESULT LISTVIEWCHILD::WndProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM l
 //		{														// get the data* passed in on AddChild()
 //			MDICREATESTRUCT* cv = reinterpret_cast<MDICREATESTRUCT*>((reinterpret_cast<CREATESTRUCT*>(lParam))->lpCreateParams);
 //			void* data = reinterpret_cast<void*>(cv->lParam);
-//			SetWindowLongPtr(hWnd, 0, (LONG_PTR)data);			//  do something with passed in data
+//			SetWindowLongPtr(hWnd, WW_STUFF, (LONG_PTR)data);			//  do something with passed in data
 //		}
 
 restart:
@@ -348,7 +353,7 @@ restart:
 		do{
 			readConfig("files", "log", "", logFile, sizeof(logFile));
 			if(logFile[0]==0){
-nFile:			if(!GetFile(hWnd, "Give name of log-file to open", logFile, sizeof(logFile))) exit(0);
+nFile:			if(!GetFileName(hWnd, "Give name of log-file to open", logFile, sizeof(logFile))) exit(0);
 				writeConfig("files", "log", logFile);
 			}
 		} while(logbook->read(logFile)==false);
@@ -378,7 +383,7 @@ nFile:			if(!GetFile(hWnd, "Give name of log-file to open", logFile, sizeof(logF
 	case WM_COMMAND:
 		// Parse the menu selections:
 		switch (LOWORD(wParam)){
-		case IDM_NEW:				// select a new file
+		case IDM_CHANGEDEFAULT:		// select a new file as default
 			delete logbook;
 			logbook = new ADIF;		// new but empty
 			goto nFile;				// ask for a new file name to load
@@ -425,10 +430,15 @@ nFile:			if(!GetFile(hWnd, "Give name of log-file to open", logFile, sizeof(logF
 		}
 		break;
 
-	case WM_DESTROY:
-		PostQuitMessage(0);
+	case WM_MDIACTIVATE:
+		// if(lParam()==(LPARAM)hWnd)	we are being activated;
 		return 0;
+
+//	case WM_DESTROY:
+//		--nChildren;
+//		PostQuitMessage(0);
+//		return 0;
 	}
-	return DefWindowProc(hWnd, uMessage, wParam, lParam);
+	return DefMDIChildProc(hWnd, uMessage, wParam, lParam);
 }
 

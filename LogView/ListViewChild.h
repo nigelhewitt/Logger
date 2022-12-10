@@ -3,6 +3,10 @@
 // ListViewChild.h
 //-------------------------------------------------------------------------------------------------
 
+extern int nChildren;
+
+#define WW_THIS		0		// index in the Window Data
+
 class LISTVIEWCHILD {
 public:
 	LISTVIEWCHILD(void *data=0){
