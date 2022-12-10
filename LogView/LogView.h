@@ -6,13 +6,13 @@
 // Header for the LogView.cpp
 
 class DXCC;				// protect the forward references
-class ADIF;
+//class ADIF;
 class LOTW;
 class EQSL;
 class LISTVIEWCHILD;
 
 extern DXCC* dxcc;
-extern ADIF* logbook;
+//extern ADIF* logbook;
 extern LOTW* lotw;
 extern EQSL* eqsl;
 

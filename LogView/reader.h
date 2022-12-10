@@ -8,6 +8,8 @@
 // 'write' first gets the length of the string needed calling recursive length() then
 //			puts the parts together
 
+class LISTVIEWCHILD;		// protect forward reference
+
 // !!!!!!!!!!!!!!!!!!!!! write is unfinished and untested !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 class ITEM {			// an individual ADIF item   eg:  <CALL:5>G8JFT
@@ -69,11 +71,10 @@ public:
 	enum ST { ST_LOTW, ST_EQSL };						// who's system are we matching?
 	bool matchReport(ENTRY& me, ENTRY* them, ST st);	// do the two reports match?
 
-	char* sortCol{};								// name of column currently being sorted
-	bool  reverse{};								// use reverse sort
-	static bool cmp(const ENTRY&, const ENTRY&);	// I'm sure I can work round having a static with a lambda......
+	char* sortCol{};									// name of column currently being sorted
+	bool  reverse{};									// use reverse sort
 	bool  compare(const ENTRY&, const ENTRY&);
-	bool  sort(const char* column, bool rev);		// sort by field name
+	bool  sort(LISTVIEWCHILD* lv, const char* column, bool rev);	// sort by field name
 
 public:
 	struct COL { const char* col; int maxW; };

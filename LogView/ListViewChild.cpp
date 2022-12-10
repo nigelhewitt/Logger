@@ -236,7 +236,7 @@ LRESULT LISTVIEWCHILD::ListViewNotify(HWND hWnd, LPARAM lParam)
 	case LVN_COLUMNCLICK:		// I implemented a sort on header click
 		{
 			LPNMLISTVIEW pnmv = (LPNMLISTVIEW)lParam;	// click column header
-			logbook->sort(logbook->titles[pnmv->iSubItem].col, false);
+			logbook->sort(this, logbook->titles[pnmv->iSubItem].col, false);
 			InsertListViewItems(hView);
 			return 0;
 		}
@@ -360,10 +360,11 @@ restart:
 				readConfig("files", "log", "", logFile, sizeof(logFile));
 				if(logFile[0]==0){
 nFile:				if(!GetFileName(hWnd, "Give name of log-file to open", logFile, sizeof(logFile))) exit(0);
-					writeConfig("files", "log", logFile);
+						writeConfig("files", "log", logFile);
 				}
 			} while(logbook->read(logFile)==false);
 		}
+		SetWindowText(hWnd, logFile);
 		hView = CreateListView(hInstance, hWnd);
 		InitListView(hView);
 		PostMessage(hWnd, WM_SYSCOMMAND, SC_MAXIMIZE, 0);	// to arrive after the create is finished
@@ -447,4 +448,3 @@ nFile:				if(!GetFileName(hWnd, "Give name of log-file to open", logFile, sizeof
 	}
 	return DefMDIChildProc(hWnd, uMessage, wParam, lParam);
 }
-

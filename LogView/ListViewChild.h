@@ -17,6 +17,7 @@ public:
 	static bool once;
 	static LISTVIEWCHILD* underCreation;
 	HWND hView{};
+	ADIF* logbook{};
 	// windows interface
 	// put the 'this' pointer into the window data area
 	static LRESULT CALLBACK WndProcStatic(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lParam);

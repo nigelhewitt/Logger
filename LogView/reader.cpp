@@ -381,10 +381,6 @@ bool ADIF::matchReport(ENTRY& me, ENTRY* them, ST st)
 // sorting the vector
 //=================================================================================================
 
-bool ADIF::cmp(const ENTRY &e1, const ENTRY &e2)
-{
-	return logbook->compare(e1, e2);
-}
 bool ADIF::compare(const ENTRY &e1, const ENTRY &e2)
 {
 	// returns true if the first argument is less than (before) the second
@@ -396,11 +392,12 @@ bool ADIF::compare(const ENTRY &e1, const ENTRY &e2)
 	if(reverse) return res>0;
 	return res<0;
 }
-bool ADIF::sort(const char* colName, bool rev)
+bool ADIF::sort(LISTVIEWCHILD* lv, const char* colName, bool rev)
 {
 	sortCol = _strdup(colName);
 	reverse = rev;
-	std::sort(entries.begin(), entries.end(), ADIF::cmp);
+	// I shall cheat and use a lambda to inject a third value into a function that strictly only takes two.
+	std::sort(entries.begin(), entries.end(), [lv](const ENTRY& e1, const ENTRY& e2){ return lv->logbook->compare(e1, e2); });
 	delete sortCol;
 	sortCol = 0;
 	return true;
