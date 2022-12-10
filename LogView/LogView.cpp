@@ -187,8 +187,12 @@ LRESULT CALLBACK FrameWndProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM lP
 			return 0;
 
 		case IDM_NEW:				// open a new file
-			new LISTVIEWCHILD;
+		{
+			char temp[MAX_PATH];
+			if(GetFileName(hWnd, "Select file to view", temp, sizeof(temp)))
+				new LISTVIEWCHILD(temp);
 			return 0;
+		}
 
 		case IDM_CHANGEDEFAULT:		// select a new default file
 		case IDM_DXCC:				// reload the country data

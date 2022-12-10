@@ -327,11 +327,13 @@ LRESULT LISTVIEWCHILD::WndProc(HWND hWnd, UINT uMessage, WPARAM wParam, LPARAM l
 
 	switch(uMessage){
 	case WM_CREATE:
-//		{														// get the data* passed in on AddChild()
-//			MDICREATESTRUCT* cv = reinterpret_cast<MDICREATESTRUCT*>((reinterpret_cast<CREATESTRUCT*>(lParam))->lpCreateParams);
-//			void* data = reinterpret_cast<void*>(cv->lParam);
-//			SetWindowLongPtr(hWnd, WW_STUFF, (LONG_PTR)data);			//  do something with passed in data
-//		}
+		logFile[0] = 0;											// default to null
+		{														// get the data* passed in on AddChild()
+			MDICREATESTRUCT* cv = reinterpret_cast<MDICREATESTRUCT*>((reinterpret_cast<CREATESTRUCT*>(lParam))->lpCreateParams);
+			const char* data = reinterpret_cast<const char*>(cv->lParam);
+			if(data && data[0])
+				strcpy_s(logFile, sizeof(logFile), data);
+		}
 
 restart:
 		// we jump to restart if we have uploaded new DXCC or LOTW files
@@ -350,14 +352,18 @@ restart:
 		if(logbook!=nullptr)
 			delete logbook;
 		logbook = new ADIF;
-		do{
-			readConfig("files", "log", "", logFile, sizeof(logFile));
-			if(logFile[0]==0){
-nFile:			if(!GetFileName(hWnd, "Give name of log-file to open", logFile, sizeof(logFile))) exit(0);
-				writeConfig("files", "log", logFile);
-			}
-		} while(logbook->read(logFile)==false);
-
+		if(logFile[0]){
+			logbook->read(logFile);		// if it fails we get a blank window
+		}
+		else{
+			do{
+				readConfig("files", "log", "", logFile, sizeof(logFile));
+				if(logFile[0]==0){
+nFile:				if(!GetFileName(hWnd, "Give name of log-file to open", logFile, sizeof(logFile))) exit(0);
+					writeConfig("files", "log", logFile);
+				}
+			} while(logbook->read(logFile)==false);
+		}
 		hView = CreateListView(hInstance, hWnd);
 		InitListView(hView);
 		PostMessage(hWnd, WM_SYSCOMMAND, SC_MAXIMIZE, 0);	// to arrive after the create is finished
