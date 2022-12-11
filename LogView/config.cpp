@@ -132,3 +132,110 @@ time_t unpackTime(const char* text)
 
 	return mktime(&t);
 }
+
+// a string all digits
+bool isdigits(const char *str)
+{
+	for(int i=0; str[i]; ++i)
+		if(!isdigit(str[i]))
+			return false;
+	return true;
+}
+//-------------------------------------------------------------------------------------------------
+// calculate the distance between squares
+//-------------------------------------------------------------------------------------------------
+
+// first convert a square to latitude and longitude
+
+bool square2spherical(const char* square, double& latitude, double& longitude)
+{
+	// I am IO90WT or sometimes IO90
+	int n = (int)strlen(square);
+	if(n!=4 && n!=6) return false;
+	
+	// latitude:
+	char c = square[1];			// 'O' in 'A' to 'R' A = south pole each slot is 10°
+	if(!isalpha(c)) return false;
+	c = toupper(c);
+	if(c>'R') return false;		// so 0-17 inclusive
+	c -= 'A';					// 'O'-'A' = 14 so 140° N of south pole so 50° N of the equator
+	latitude = c*10 - 90;		// convert to degrees N (S is negative)
+
+	c = square[3];				// '0'
+	if(!isdigit(c)) return false;
+	c -= '0';					// '0' - '0' = 0 0-9 are 10° so this is just degrees
+	latitude += c;
+	if(n==6){
+		c = square[5];			// ' W'
+		if(!isalpha(c)) return false;
+		c = toupper(c);
+		if(c>'X') return false;	// so 0-23 inclusive
+		c -= 'A';				// 'W'-'A' = 19
+		latitude += (c/24.0);	// 24ths of a degree
+		latitude += (1/48.0);	// move to the centre of the square
+	}
+	else
+		latitude += 0.5;		// move to the centre of the square
+
+	// longitude:
+	c = square[0];			// 'I' in 'A' to 'R' A = 180 longitude, 
+								//		out in the Pacific ocean, each slot is 20° (note difference)
+	if(!isalpha(c)) return false;
+	c = toupper(c);
+	if(c>'R') return false;		// so 0-17 inclusive
+	c -= 'A';					// 'I'-'A' = 8 so 160° E of 180° so 20° E of the meridian
+	longitude = c*20 - 180;		// convert to degrees E (W is negative)
+
+	c = square[2];				// '9'
+	if(!isdigit(c)) return false;
+	c -= '0';					// '0' - '9' = 0 0-9 are 20° so this is 2 degrees per slot
+	longitude += 2*c;
+	if(n==6){
+		c = square[4];			// 'W'
+		if(!isalpha(c)) return false;
+		c = toupper(c);
+		if(c>'X') return false;	// so 0-23 inclusive
+		c -= 'A';				// 'W'-'A'	
+		longitude += (c/12.0);	// 12ths of a degree
+		longitude += (1/24.0);	// move to the centre of the square
+	}
+	else
+		longitude += 1.0;		// move to the centre of the square
+
+	return true;
+}
+
+inline double sq(double x){ return x*x; }
+
+double haversine(double lat1, double long1, double lat2, double long2, double radius)
+{
+	// the classic Haversine formula from our spherical trig class
+	// convert to radians
+	lat1  *= std::numbers::pi/180.0;
+	long1 *= std::numbers::pi/180.0;
+	lat2  *= std::numbers::pi/180.0;
+	long2 *= std::numbers::pi/180.0;
+	double deltaLat  = lat2-lat1;
+	double deltaLong = long2-long1;
+
+	double a = sq(std::sin(deltaLat/2)) + std::cos(lat1)*std::cos(lat2)*sq(std::sin(deltaLong/2));
+	double c = 2 * std::atan2(std::sqrt(a), std::sqrt(1-a));
+	return radius * c;
+}
+
+// So I went to test this with the Brighton to Sidney path but somehow the internet, true to form,
+// offered me numbers between 9142 and 10576 miles (and one at 572 as there is a Brighton in Queensland)
+
+// I worked VK2PAA and he claimed QF55 which is south of Sidney and Google earth makes it 10602 from
+// me to the centre of the square. I make it 10617 and considering that a 'square' is way bigger than
+// that I'll accept it as 'good enough' for now.
+
+// The equatorial radius of the earth is 6371km although the polar radius is 6357
+// I'll go with 3963 miles. So half way round is 12450 (East of the south of South island NZ).
+
+int mileage(const char* him, const char* me)
+{
+	double latHim, longHim, latMe, longMe;
+	if(!square2spherical(him, latHim, longHim) || !square2spherical(me, latMe, longMe)) return -1;
+	return (int)haversine(latHim, longHim, latMe, longMe, 3963);
+}

@@ -15,6 +15,7 @@
 // C RunTime Header Files
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
 #include <urlmon.h>
 #include <time.h>
 #include <direct.h>
@@ -25,6 +26,7 @@
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
+#include <numbers>
 
 // Project specific header files
 #include "resource.h"

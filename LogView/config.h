@@ -20,3 +20,5 @@ char* LoadFile(const char* fname);
 
 // unpack a 14 character packed date-time value
 time_t unpackTime(const char* text);
+bool isdigits(const char *str);
+int mileage(const char* him, const char* me);

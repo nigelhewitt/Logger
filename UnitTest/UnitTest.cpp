@@ -71,5 +71,17 @@ namespace UnitTest1
 			strip_brackets(t2);
 			Assert::IsTrue(strcmp(t2, "ABC,FG")==0);
 		}
+
+		bool closerthan(double a, double b, double c){ return abs(a-b) < c; }
+		TEST_METHOD(TestMethod6)
+		{
+			double latitude, longitude;
+			square2spherical("IO90wt", latitude, longitude);
+			Assert::IsTrue(closerthan(latitude, 50.818793, 1/24.0));
+			Assert::IsTrue(closerthan(longitude, -0.108248, 1/12.0));
+
+			int n = mileage("QF55", "IO90WT");
+			Assert::IsTrue(n == 10617);
+		}
 	};
 }

@@ -22,13 +22,14 @@ This is 'take one' with ADI file read, DXCC addition, display and column sorting
 wanted to archive the country code source safely as it took a while to derive and test.
 All the log analysis stuff will come later and probably not be useful to anybody else.
 
-I have added code to consult my online LoTW and eQSL logs so I can mark the
-'confirmed' ones and as these are the services I use. When the system starts it will ask
-you for the usernames and passwords for these services. If you leave the usernames blank
-it will not use them. There is a menu item to set them later.
+I added code to consult my online LoTW and eQSL logs so I can mark the 'confirmed'
+ones and as these are the services I use. When the system starts it will ask you for
+the usernames and passwords for these services. If you leave the usernames blank it
+will not use them. There is a menu item to set them later.
 
 Then I updated things to use the MDI (MultiDocument Interface) so I could handle two or
-more files at once. What I want next is a smart compare.
+more files at once. Then a milage field based on the squares. What I want next is a
+smart merge and compare.
 
 The files it downloads and the configuration information are saved in the
 C:\Users\your_name\AppData\Roaming\NigSoft\LogView\ folder so it gets backed up.

@@ -228,20 +228,33 @@ LRESULT LISTVIEWCHILD::ListViewNotify(HWND hWnd, LPARAM lParam)
 				ENTRY* e = &logbook->entries[lpdi->item.iItem];				// find entry for row
 				ITEM*  i = e->find(col);									// find item for column
 				if(i  && i->value){
-					if(strstr(col, "DATE")){
+					// OK, a bit naughty but if the title contains DATE and the string is eight packed digits
+					// then let's guess it's a data and unpack it
+					if(strlen(i->value)==8 && isdigits(i->value) && strstr(col, "DATE")){
 						char temp[20];
-						for(int n=0, m=0; n<9; ++n){
+						for(int n=0, m=0; n<9; ++n){		// include trailing null in copy
 							temp[m++] = i->value[n];
 							if(n==3 || n==5)
 								temp[m++]='-';
 						}
 						strcpy_s(lpdi->item.pszText, lpdi->item.cchTextMax, temp);
 					}
-					else if(strstr(col, "TIME")){
+					// ditto 6 digit time
+					else if(strlen(i->value)==6 && isdigits(i->value) && strstr(col, "TIME")){
 						char temp[20];
 						for(int n=0, m=0; n<7; ++n){
 							temp[m++]= i->value[n];
 							if(n==1 || n==3)
+								temp[m++]=':';
+						}
+						strcpy_s(lpdi->item.pszText, lpdi->item.cchTextMax, temp);
+					}
+					// and 4 digit time (no seconds)
+					else if(strlen(i->value)==4 && isdigits(i->value) && strstr(col, "TIME")){
+						char temp[20];
+						for(int n=0, m=0; n<5; ++n){
+							temp[m++]= i->value[n];
+							if(n==1)
 								temp[m++]=':';
 						}
 						strcpy_s(lpdi->item.pszText, lpdi->item.cchTextMax, temp);

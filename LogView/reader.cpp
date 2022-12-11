@@ -289,6 +289,26 @@ bool ADIF::read(char* &in)
 		}
 	}
 
+	// patch in the mileage
+	first = true;
+	for(ENTRY& e : entries){
+		ITEM* square = e.find("GRIDSQUARE");			// find their square
+		if(square && square->value){
+			ITEM* me = e.find("MY_GRIDSQUARE");
+			if(me && me->value){
+				char temp[20];
+				sprintf_s(temp, sizeof(temp), "%d", mileage(square->value, me->value));
+				ITEM* y = new ITEM("Distance (miles)", temp);
+				e.items.insert(e.items.begin()+5, *y);
+				first = false;
+			}
+		}
+		if(first){
+			first = false;
+			e.items.insert(e.items.begin()+4, *(new ITEM("Distance (miles)")));
+		}
+	}
+
 	// now prepare the list of column headers
 	titles.clear();
 	for(ENTRY e : entries)						// for all entries
