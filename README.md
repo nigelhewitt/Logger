@@ -23,13 +23,16 @@ wanted to archive the country code source safely as it took a while to derive an
 All the log analysis stuff will come later and probably not be useful to anybody else.
 
 I added code to consult my online LoTW and eQSL logs so I can mark the 'confirmed'
-ones and as these are the services I use. When the system starts it will ask you for
-the usernames and passwords for these services. If you leave the usernames blank it
+entries as these are the services I use. When the system starts it will ask for
+usernames and passwords for these services. If you leave the usernames blank it
 will not use them. There is a menu item to set them later.
 
-Then I updated things to use the MDI (MultiDocument Interface) so I could handle two or
-more files at once. Then a milage field based on the squares. What I want next is a
-smart merge and compare.
+I also updated things to use the MDI (MultiDocument Interface) so I could handle two or
+more files at once.
+
+To get a mileage field I wrote Maidenhead Square to latitude/longitude routines and a
+spherical trig distance function to add distance. What I want next is a smart merge and
+compare.
 
 The files it downloads and the configuration information are saved in the
 C:\Users\your_name\AppData\Roaming\NigSoft\LogView\ folder so it gets backed up.
