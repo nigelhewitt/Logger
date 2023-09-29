@@ -139,7 +139,7 @@ HWND LISTVIEWCHILD::CreateListView(HINSTANCE hInstance, HWND hwndParent)
 		ListView_SetImageList(hwndListView, himlSmall, LVSIL_SMALL);
 		ListView_SetImageList(hwndListView, himlLarge, LVSIL_NORMAL);
 	}
-
+	ListView_SetExtendedListViewStyleEx(hwndListView,  LVS_EX_FULLROWSELECT, LVS_EX_FULLROWSELECT);
 	return hwndListView;
 }
 void LISTVIEWCHILD::PositionHeader(HWND hwndListView)
@@ -147,7 +147,7 @@ void LISTVIEWCHILD::PositionHeader(HWND hwndListView)
 	HWND  hwndHeader = GetWindow(hwndListView, GW_CHILD);
 	DWORD dwStyle	 = GetWindowLong(hwndListView, GWL_STYLE);
 
-	// To ensure that the first item will be visible, create the control without 
+	// To ensure that the first item will be visible, create the control without
 	// the LVS_NOSCROLL style and then add it here
 	dwStyle |= LVS_NOSCROLL;
 	SetWindowLong(hwndListView, GWL_STYLE, dwStyle);
@@ -164,12 +164,12 @@ void LISTVIEWCHILD::PositionHeader(HWND hwndListView)
 
 		Header_Layout(hwndHeader, &hdLayout);
 
-		SetWindowPos(hwndHeader, 
-						wpos.hwndInsertAfter, 
-						wpos.x, 
+		SetWindowPos(hwndHeader,
+						wpos.hwndInsertAfter,
+						wpos.x,
 						wpos.y,
-						wpos.cx, 
-						wpos.cy, 
+						wpos.cx,
+						wpos.cy,
 						wpos.flags | SWP_SHOWWINDOW);
 
 		ListView_EnsureVisible(hwndListView, 0, FALSE);
@@ -419,7 +419,7 @@ nFile:				if(!GetFileName(hWnd, "Give name of log-file to open", logFile, sizeof
 		if(DoContextMenu(hWnd, wParam, lParam))
 			return FALSE;
 		break;
- 
+
 	case WM_COMMAND:
 		// Parse the menu selections:
 		switch (LOWORD(wParam)){

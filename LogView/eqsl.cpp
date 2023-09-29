@@ -22,7 +22,7 @@ bool EQSL::update()
 
 	strcpy_s(pageFile, sizeof(pageFile), dataFolder);
 	strcat_s(pageFile, sizeof(pageFile), "\\eQSLpage.html");
-	
+
 	// slightly convoluted procedure: we supply the requested login and details to get a page
 	// however that is a man-readable and we have to spot the link.
 	_unlink(pageFile);
@@ -36,7 +36,7 @@ bool EQSL::update()
 #endif
 	char *p = strstr(page, "Click one of the following to download");
 	if(p==nullptr) return false;
-	
+
 	char *p2 = strstr(p, "../downloadedfiles/");
 	if(p2==nullptr) return false;
 	char url2[200] = "https://www.eqsl.cc/downloadedfiles/";
@@ -76,7 +76,7 @@ bool EQSL::read(const char* fname)
 	char* in =  LoadFile(fname);
 	if(in==nullptr) return false;
 	char *ix = in;								// save to do a clean delete
-	while(*in && *in!='<') ++in;				// skip the headers 
+	while(*in && *in!='<') ++in;				// skip the headers
 
 	while(true){								// now skip the header entries
 		ITEM *i = ITEM::read(in);

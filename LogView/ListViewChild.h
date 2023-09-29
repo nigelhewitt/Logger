@@ -29,7 +29,7 @@ private:
 	void RegisterClass();
 	HWND AddChild(const char* title, const char* data);
 	HWND CreateListView(HINSTANCE hInstance, HWND hwndParent);
-	
+
 	// ListView stuff
 	void ResizeListView(HWND hwndListView, HWND hwndParent);
 	void PositionHeader(HWND hwndListView);

@@ -16,7 +16,7 @@ void LOTW::addArg(const char* name, const char* value)
 {
 	char temp[100];
 	sprintf_s(temp, sizeof(temp), "%c%s=%s", sep, name, value);
-	strcat_s(url, sizeof(url), temp); 
+	strcat_s(url, sizeof(url), temp);
 	sep = '&';
 }
 //-------------------------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ bool LOTW::read(const char* fname)
 	char* in =  LoadFile(fname);
 	if(in==nullptr) return false;
 	char *ix = in;								// save to do a clean delete
-	while(*in && *in!='<') ++in;				// skip the headers 
+	while(*in && *in!='<') ++in;				// skip the headers
 
 	while(true){								// now skip the header entries
 		ITEM *i = ITEM::read(in);

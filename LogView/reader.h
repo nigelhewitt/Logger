@@ -28,7 +28,7 @@ public:
 public:
 	bool isEOR(){ return value==nullptr && _stricmp(name, "EOR")==0; }			// test for delimiters
 	bool isEOH(){ return value==nullptr && _stricmp(name, "EOH")==0; }
-	
+
 	static ITEM* read(char* &in);												// read the next item from a character array
 
 	size_t length();																			// return number of bytes needed to write this

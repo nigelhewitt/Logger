@@ -13,7 +13,7 @@ ADIF* logbook{};
 DXCC* dxcc{};
 LOTW* lotw{};
 EQSL* eqsl{};
-CRITICAL_SECTION CriticalSection{}; 
+CRITICAL_SECTION CriticalSection{};
 
 //=====================================================================================================
 // handler to unpack Windows error codes into text  (Work in Wide so we can handle anything)

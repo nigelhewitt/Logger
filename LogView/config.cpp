@@ -152,7 +152,7 @@ bool square2spherical(const char* square, double& latitude, double& longitude)
 	// I am IO90WT or sometimes IO90
 	int n = (int)strlen(square);
 	if(n!=4 && n!=6) return false;
-	
+
 	// latitude:
 	char c = square[1];			// 'O' in 'A' to 'R' A = south pole each slot is 10°
 	if(!isalpha(c)) return false;
@@ -178,7 +178,7 @@ bool square2spherical(const char* square, double& latitude, double& longitude)
 		latitude += 0.5;		// move to the centre of the square
 
 	// longitude:
-	c = square[0];			// 'I' in 'A' to 'R' A = 180 longitude, 
+	c = square[0];			// 'I' in 'A' to 'R' A = 180 longitude,
 								//		out in the Pacific ocean, each slot is 20° (note difference)
 	if(!isalpha(c)) return false;
 	c = toupper(c);
@@ -195,7 +195,7 @@ bool square2spherical(const char* square, double& latitude, double& longitude)
 		if(!isalpha(c)) return false;
 		c = toupper(c);
 		if(c>'X') return false;	// so 0-23 inclusive
-		c -= 'A';				// 'W'-'A'	
+		c -= 'A';				// 'W'-'A'
 		longitude += (c/12.0);	// 12ths of a degree
 		longitude += (1/24.0);	// move to the centre of the square
 	}

@@ -244,7 +244,7 @@ bool ADIF::read(char* &in)
 		const char* vx = "";
 		if(call && call->value){
 			char temp[30];								// provision for multiple calls logged
-			strcpy_s(temp, sizeof(temp), call->value); 
+			strcpy_s(temp, sizeof(temp), call->value);
 			while(lotw->lotwTable.contains(temp)){
 				ENTRY* rep = &lotw->lotwTable[temp];
 				if(matchReport(e, rep, ST_LOTW)){
@@ -270,7 +270,7 @@ bool ADIF::read(char* &in)
 		const char* vx = "";
 		if(call && call->value){
 			char temp[30];								// provision for multiple calls logged
-			strcpy_s(temp, sizeof(temp), call->value); 
+			strcpy_s(temp, sizeof(temp), call->value);
 			while(eqsl->eqslTable.contains(temp)){
 				ENTRY* rep = &eqsl->eqslTable[temp];
 				if(matchReport(e, rep, ST_EQSL)){

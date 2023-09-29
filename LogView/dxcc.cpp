@@ -24,7 +24,7 @@ bool DXCC::fetchARRL(bool force)
 
 	bool exists = FileExists(szLookupFile);
 	if(!force && exists) return true;			// we have it already
-	
+
 	if(!force){									// computers should not ask silly questions if given orders
 		char temp[500];
 		sprintf_s(temp, sizeof(temp), "Unable to locate file %s in folder %s\nDownload from internet?", szLookupFile, dataFolder);
@@ -229,11 +229,11 @@ bool DXCC::processLookup(const char* p, int lineno)
 
 	// do the easy clean-ups first
 	// remove #* from the end of a prefix (see the notes for explanations)
-	strip_brackets(raw->prefix);			strip_trailing(raw->prefix, " *#,^");	
+	strip_brackets(raw->prefix);			strip_trailing(raw->prefix, " *#,^");
 	strip_trailing(raw->entity, " ");
 	strip_trailing(raw->continent, " ");
-	strip_brackets(raw->itu);				strip_trailing(raw->itu, " ");			
-	strip_brackets(raw->cq);				strip_trailing(raw->cq, " ");			
+	strip_brackets(raw->itu);				strip_trailing(raw->itu, " ");
+	strip_brackets(raw->cq);				strip_trailing(raw->cq, " ");
 	strip_trailing(raw->code, " \n");
 
 	processPrefix(raw);
@@ -243,7 +243,7 @@ DXCC::DXCC(bool force)
 {
 	// if it fails we just get no look ups
 	if(!fetchARRL(force)) return;
-	
+
 	// open the file
 	FILE* fh{};
 	int line=0;
@@ -262,7 +262,7 @@ skip:
 	while(fgets(buffer, sizeof(buffer), fh)!=nullptr
 				&& strlen(buffer)>5							// yes it's just arbitrary...
 				&& processLookup(buffer, ++line));
-	
+
 	fclose(fh);
 
 #ifdef _DEBUG
